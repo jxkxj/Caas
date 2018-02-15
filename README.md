@@ -3,7 +3,7 @@ We all need another "as-a-service" product.  Why not configurations?  Introducin
 
 We all have applications whether the web, a desktop app, or a mobile app that need to get a config anonymously.  CaaS is designed to be quick, easy, and configurable to fit all these needs.  It's not designed to be a fancy system, it designed to pass configs.
 
-Build Status: Coming soon
+Build Status: [![Build status](https://ci.appveyor.com/api/projects/status/9duu14is56ffo0dk?svg=true)](https://ci.appveyor.com/project/nwestfall/caas)
 
 Client Nuget: Coming soon
 
