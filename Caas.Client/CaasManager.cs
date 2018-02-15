@@ -32,9 +32,13 @@ namespace Caas.Client
                 else
                     httpClient = new HttpClient(httpHandler);
                 httpClient.BaseAddress = endpointUri;
+                isInitialized = true;
             }
             else
+            {
+                isInitialized = false;
                 throw new CaasException(CaasException.INVALID_URI);
+            }
         }
 
         private static async Task<T> GetResponseAsync<T>(string url, params string[] values) where T : class
