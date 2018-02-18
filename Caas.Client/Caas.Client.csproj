@@ -2,6 +2,18 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard1.3</TargetFramework>
+    <PackageId>Caas.Client</PackageId>
+    <Authors>Nathan Westfall</Authors>
+    <Company>Fist Bump Studios</Company>
+    <PackageProjectUrl>https://github.com/nwestfall/Caas</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/nwestfall/Caas/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageIconUrl></PackageIconUrl>
+    <RepositoryUrl>https://github.com/nwestfall/Caas</RepositoryUrl>
+    <PackageTags>dotnet, service, configurations, netstandard</PackageTags>
+    <PackageReleaseNotes>We all need another "as-a-service" product. Why not configurations? Introducing a simple to use Configurations-as-a-Service system.
+
+We all have applications whether the web, a desktop app, or a mobile app that need to get a config anonymously. CaaS is designed to be quick, easy, and configurable to fit all these needs. It's not designed to be a fancy system, it designed to pass configs.</PackageReleaseNotes>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
