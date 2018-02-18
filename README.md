@@ -5,7 +5,7 @@ We all have applications whether the web, a desktop app, or a mobile app that ne
 
 Build Status: [![Build status](https://ci.appveyor.com/api/projects/status/9duu14is56ffo0dk?svg=true)](https://ci.appveyor.com/project/nwestfall/caas)
 
-Client Nuget: Coming soon
+Client Nuget: [![NuGet version](https://badge.fury.io/nu/Caas.Client.svg)](https://badge.fury.io/nu/Caas.Client)
 
 ## Platform Support
 **Caas.Web**
