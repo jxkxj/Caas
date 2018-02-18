@@ -7,6 +7,9 @@ Build Status: [![Build status](https://ci.appveyor.com/api/projects/status/9duu1
 
 Client Nuget: [![NuGet version](https://badge.fury.io/nu/Caas.Client.svg)](https://badge.fury.io/nu/Caas.Client)
 
+## Quickstart
+[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://azuredeploy.net/)
+
 ## Platform Support
 **Caas.Web**
 
