@@ -37,5 +37,10 @@ namespace Caas.Web
         /// Cache key for <see cref="Models.Config"/> with just Key
         /// </summary>
         public const string CONFIG_KEY = "config_K{0}";
+
+        /// <summary>
+        /// Check key for <see cref="Models.Config"/> with Identifer and Type
+        /// </summary>
+        public const string CLIENT_KEY = "client_I{0}-T{1}";
     }
 }

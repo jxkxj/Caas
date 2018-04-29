@@ -27,6 +27,53 @@ namespace Caas.Web.Apis
             _cache = cache;
         }
 
+        private bool CheckInRequest(string identifier, string type)
+        {
+            Client client;
+
+            //Check cache
+            if (!_cache.TryGetValue(string.Format(CacheKeys.CLIENT_KEY, identifier, type), out client))
+            {
+                client = _context.Client.FirstOrDefault(c => c.Identifier == identifier && c.ClientType.Name == type);
+
+                if (client == null && Environment.GetEnvironmentVariable("CAAS_CREATECLIENTS") == "true")
+                {
+                    var clientType = _context.ClientType.FirstOrDefault(c => c.Name == type);
+
+                    if (clientType == null)
+                    {
+                        clientType = _context.ClientType.Add(new ClientType()
+                        {
+                            Name = type,
+                            Created = DateTime.UtcNow
+                        }).Entity;
+                    }
+
+                    client = _context.Client.Add(new Client()
+                    {
+                        ClientType = clientType,
+                        Created = DateTime.UtcNow,
+                        Identifier = identifier
+                    }).Entity;
+
+                    //Add to cache
+                    _cache.Set(string.Format(CacheKeys.CLIENT_KEY, identifier, type), client, DateTime.Now.AddMinutes(CacheKeys.CacheTimeout));
+                }
+                else if (Environment.GetEnvironmentVariable("CAAS_CREATECLIENTS") != "true")
+                    return false;
+            }
+
+            //Add Check In
+            _context.CheckIn.Add(new Models.CheckIn()
+            {
+                ClientId = client.ClientId,
+                Client = client,
+                CheckInTime = DateTime.UtcNow
+            });
+
+            return true;
+        }        
+
         /// <summary>
         /// Get a specific <see cref="Config"/> by <see cref="Config.Key"/> for a <see cref="Client"/>
         /// </summary>
@@ -41,7 +88,13 @@ namespace Caas.Web.Apis
             if (_cache.TryGetValue<Config>(string.Format(CacheKeys.CONFIG_IDENTIFIERTYPEKEY, identifier, type, key), out Config cacheConfig))
                 return Ok(cacheConfig);
 
-            var client = _context.Client.FirstOrDefault(c => c.Identifier == identifier && c.ClientType.Name == type);
+            Client client;
+
+            if (!_cache.TryGetValue(string.Format(CacheKeys.CLIENT_KEY, identifier, type), out client))
+            {
+                client = _context.Client.FirstOrDefault(c => c.Identifier == identifier && c.ClientType.Name == type);
+                _cache.Set(string.Format(CacheKeys.CLIENT_KEY, identifier, type), client, DateTime.Now.AddMinutes(CacheKeys.CacheTimeout));
+            }
 
             if (client == null)
                 return NoContent();
@@ -95,7 +148,13 @@ namespace Caas.Web.Apis
         [HttpGet]
         public IActionResult GetAllConfigsForClient(string identifier, string type)
         {
-            var client = _context.Client.FirstOrDefault(c => c.Identifier == identifier && c.ClientType.Name == type);
+            Client client;
+
+            if (!_cache.TryGetValue(string.Format(CacheKeys.CLIENT_KEY, identifier, type), out client))
+            {
+                client = _context.Client.FirstOrDefault(c => c.Identifier == identifier && c.ClientType.Name == type);
+                _cache.Set(string.Format(CacheKeys.CLIENT_KEY, identifier, type), client, DateTime.Now.AddMinutes(CacheKeys.CacheTimeout));
+            }
 
             if (client == null)
                 return NoContent();
@@ -103,6 +162,22 @@ namespace Caas.Web.Apis
             var configs = _context.ConfigAssociation.Where(c => c.ClientId == client.ClientId).Select(c => c.Config);
 
             return Ok(configs);
+        }
+
+        /// <summary>
+        /// Allow a <see cref="Client"/> to check in
+        /// Store a new <see cref="Models.CheckIn"/> record
+        /// </summary>
+        /// <param name="identifier">The <see cref="Client.Identifier"/></param>
+        /// <param name="type">The <see cref="ClientType.Name"/></param>
+        /// <returns></returns>
+        [HttpPost]
+        public IActionResult CheckIn(string identifier, string type)
+        {
+            if (CheckInRequest(identifier, type))
+                return Ok();
+
+            return BadRequest();
         }
     }
 }

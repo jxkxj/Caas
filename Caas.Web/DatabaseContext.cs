@@ -39,5 +39,10 @@ namespace Caas.Web
         /// Get all <see cref="ConfigAssociation"/>
         /// </summary>
         public DbSet<ConfigAssociation> ConfigAssociation { get; set; }
+
+        /// <summary>
+        /// Get all <see cref="CheckIn"/>
+        /// </summary>
+        public DbSet<CheckIn> CheckIn { get; set; }
     }
 }
