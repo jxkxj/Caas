@@ -1,6 +1,8 @@
 ﻿using System;
+#if NETCOREAPP2_0
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+#endif
 
 using Newtonsoft.Json;
 
@@ -14,7 +16,9 @@ namespace Caas.Models
         /// <summary>
         /// Get or set the Id
         /// </summary>
+#if NETCOREAPP2_0
         [Key]
+#endif
         public int CheckInId { get; set; }
         private Client _client;
         /// <summary>
@@ -33,7 +37,9 @@ namespace Caas.Models
         /// <summary>
         /// Get or set the <see cref="Client"/> id
         /// </summary>
+#if NETCOREAPP2_0
         [Required]
+#endif
         public int ClientId
         {
             get => _clientId;
@@ -51,7 +57,9 @@ namespace Caas.Models
         /// <summary>
         /// Get or set the Check In Date and Time
         /// </summary>
+#if NETCOREAPP2_0
         [Required]
+#endif
         public DateTime CheckInTime { get; set; }
     }
     
@@ -65,7 +73,9 @@ namespace Caas.Models
         /// Get or set the <see cref="ExtraData"/> converted to <see cref="T"/>
         /// </summary>
         [JsonIgnore]
+#if NETCOREAPP2_0
         [NotMapped]
+#endif
         public T ConvertedExtraData
         {
             get

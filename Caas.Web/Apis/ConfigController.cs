@@ -168,13 +168,19 @@ namespace Caas.Web.Apis
         /// Allow a <see cref="Client"/> to check in
         /// Store a new <see cref="Models.CheckIn"/> record
         /// </summary>
-        /// <param name="identifier">The <see cref="Client.Identifier"/></param>
-        /// <param name="type">The <see cref="ClientType.Name"/></param>
+        /// <param name="client">The <see cref="Client"/> with at least the <see cref="Client.Identifier"/> and <see cref="Client.ClientType.Name"/></param>
         /// <returns></returns>
         [HttpPost]
-        public IActionResult CheckIn(string identifier, string type)
+        public IActionResult CheckIn(Client client)
         {
-            if (CheckInRequest(identifier, type))
+            if (client == null)
+                return BadRequest();
+            if (string.IsNullOrEmpty(client.Identifier))
+                return BadRequest();
+            if (string.IsNullOrEmpty(client.ClientType?.Name))
+                return BadRequest();
+
+            if (CheckInRequest(client.Identifier, client.ClientType.Name))
                 return Ok();
 
             return BadRequest();

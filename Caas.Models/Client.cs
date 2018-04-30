@@ -1,5 +1,7 @@
 ﻿using System;
+#if NETCOREAPP2_0
 using System.ComponentModel.DataAnnotations;
+#endif
 
 namespace Caas.Models
 {
@@ -11,12 +13,16 @@ namespace Caas.Models
         /// <summary>
         /// Get or set the Id
         /// </summary>
+#if NETCOREAPP2_0
         [Key]
+#endif
         public int ClientId { get; set; }
         /// <summary>
         /// Get or set the <see cref="Client"/> identifier
         /// </summary>
+#if NETCOREAPP2_0
         [Required]
+#endif
         public string Identifier { get; set; }
         private ClientType _clientType;
         /// <summary>
@@ -48,7 +54,9 @@ namespace Caas.Models
         /// <summary>
         /// Get or set when the <see cref="Client"/> was created
         /// </summary>
+#if NETCOREAPP2_0
         [Required]
+#endif
         public DateTime Created { get; set; }
         /// <summary>
         /// Get or set when the <see cref="Client"/> was updated

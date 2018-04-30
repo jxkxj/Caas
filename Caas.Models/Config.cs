@@ -1,6 +1,8 @@
 ﻿using System;
+#if NETCOREAPP2_0
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+#endif
 
 using Newtonsoft.Json;
 
@@ -14,22 +16,30 @@ namespace Caas.Models
         /// <summary>
         /// Get or set the Id
         /// </summary>
+#if NETCOREAPP2_0
         [Key]
+#endif
         public int ConfigId { get; set; }
         /// <summary>
         /// Get or set the Unique Key
         /// </summary>
+#if NETCOREAPP2_0
         [Required]
+#endif
         public string Key { get; set; }
         /// <summary>
         /// Get or set the Value
         /// </summary>
+#if NETCOREAPP2_0
         [Required]
+#endif
         public string Value { get; set; }
         /// <summary>
         /// Get or set when the <see cref="Config"/> was created
         /// </summary>
+#if NETCOREAPP2_0
         [Required]
+#endif
         public DateTime Created { get; set; }
         /// <summary>
         /// Get or set when the <see cref="Config"/> was updated
@@ -47,7 +57,9 @@ namespace Caas.Models
         /// Get or set the <see cref="Value"/> converted to <see cref="T"/>
         /// </summary>
         [JsonIgnore]
+#if NETCOREAPP2_0
         [NotMapped]
+#endif
         public T ConvertedValue
         {
             get
