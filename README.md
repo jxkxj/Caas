@@ -5,6 +5,8 @@ We all have applications whether the web, a desktop app, or a mobile app that ne
 
 Build Status: [![Build status](https://ci.appveyor.com/api/projects/status/9duu14is56ffo0dk?svg=true)](https://ci.appveyor.com/project/nwestfall/caas)
 
+CodeFactor: [![CodeFactor](https://www.codefactor.io/repository/github/nwestfall/caas/badge/master)](https://www.codefactor.io/repository/github/nwestfall/caas/overview/master)
+
 Client Nuget: [![NuGet version](https://badge.fury.io/nu/Caas.Client.svg)](https://badge.fury.io/nu/Caas.Client)
 
 ## Platform Support
@@ -42,8 +44,9 @@ Caas.Client is added to your application where you wish to read the configs from
 
 **Data**
 
-There are 4 data classes we use.
+There are 5 data classes we use.
 
+ * CheckIn
  * Client
  * ClientType
  * Config
@@ -130,6 +133,25 @@ var config2 = CaasManager.GetConfigForClientAsync("012510329714913", "Android", 
 
 Both ways are acceptable use cases and you can uses one or both in your implementation.
 
+**Check-Ins**
+
+You have your clients manually check in the to the server so you know the last time they communicated.  This can be helpful for a few things
+
+ * Verify the last time the device checked in or got a config
+ * Automatically create new clients so you can set new configs after there first check in (see ```CAAS_CREATECLIENTS``` enviroment variable)
+
+A client check in occurs with the following 3 requests
+
+```c#
+Task<Config> GetConfigForClientAsync(string identifier, string type, string key);
+
+Task<IEnumerable<Config>> GetAllConfigsForClientAsync(string identifier, string type);
+
+Task CheckInClient(string identifier, string type);
+```
+
+Check-ins are stored with the client id and the datetime in UTC.
+
 ## Caas.Web
 
 **Enviroment Variables**
@@ -141,6 +163,7 @@ Since it is designed to run in Docker, there are a few enviroment variables you 
  * ```SQLSERVER_PASSWORD``` (Default: password)
  * ```INMEMORYCACHE_USE``` (Default: "true")
  * ```INMEMORYCACHE_TIMEOUT``` (Default: 60) [In Minutes]
+ * ```CAAS_CREATECLIENTS``` (Default: true)
 
 **Running from command line**
 
@@ -193,6 +216,8 @@ Task<Config> GetConfigAsync(string key);
 Task<IEnumerable<Config>> GetAllConfigsAsync();
 
 Task<IEnumerable<Config>> GetAllConfigsForClientAsync(string identifier, string type);
+
+Task CheckInClient(string identifier, string type);
 ```
 
 ## FAQ
@@ -217,6 +242,7 @@ public class Client
 **How do I add new configs and clients?**
 
 Currently, you will have to build a way to do this or use SQL.  We plan on coming out with a manager soon to help you do this.
+'''NEW''': You can also have your devices "Check In" and if the client doesn't exist, it will create them automatically.
 
 ## License
 Under MIT (see license file)

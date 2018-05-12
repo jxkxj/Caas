@@ -8,8 +8,10 @@
     <PublishWithAspNetCoreTargetManifest>false</PublishWithAspNetCoreTargetManifest>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DocumentationFile>bin\Release\netcoreapp2.0\Caas.Web.xml</DocumentationFile>
+  </PropertyGroup>
   <ItemGroup>
-    <Folder Include="Controllers\" />
     <Folder Include="Properties\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
@@ -26,5 +28,4 @@
   <ItemGroup>
     <ProjectReference Include="..\Caas.Models\Caas.Models.csproj" />
   </ItemGroup>
-
 </Project>

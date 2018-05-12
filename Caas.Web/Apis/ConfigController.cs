@@ -84,6 +84,9 @@ namespace Caas.Web.Apis
         [HttpGet]
         public IActionResult GetConfigForClient(string identifier, string type, string key)
         {
+			//Check in the client first
+			CheckInRequest(identifier, type);
+
             //Look in cache first
             if (_cache.TryGetValue<Config>(string.Format(CacheKeys.CONFIG_IDENTIFIERTYPEKEY, identifier, type, key), out Config cacheConfig))
                 return Ok(cacheConfig);
@@ -148,6 +151,9 @@ namespace Caas.Web.Apis
         [HttpGet]
         public IActionResult GetAllConfigsForClient(string identifier, string type)
         {
+			//Check in the client first
+			CheckInRequest(identifier, type);
+
             Client client;
 
             if (!_cache.TryGetValue(string.Format(CacheKeys.CLIENT_KEY, identifier, type), out client))

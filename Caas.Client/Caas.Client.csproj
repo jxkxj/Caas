@@ -19,6 +19,10 @@ We all have applications whether the web, a desktop app, or a mobile app that ne
     <Version Condition="'$(appveyor_build_version)' != ''">$(appveyor_build_version)</Version>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType></DebugType>
+    <DocumentationFile>bin\Release\netstandard1.3\Caas.Client.xml</DocumentationFile>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
   </ItemGroup>

@@ -64,13 +64,13 @@ namespace Caas.Models
     }
     
     /// <summary>
-    /// Model for check in with converted <see cref="ExtraData"/>
+    /// Model for check in with converted <see cref="ConvertedExtraData"/>
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class CheckIn<T> : CheckIn
     {
         /// <summary>
-        /// Get or set the <see cref="ExtraData"/> converted to <see cref="T"/>
+        /// Get or set the <see cref="ConvertedExtraData"/> converted to <see cref="T"/>
         /// </summary>
         [JsonIgnore]
 #if NETCOREAPP2_0
