@@ -1,5 +1,7 @@
 ﻿using System;
+#if NETCOREAPP2_0
 using System.ComponentModel.DataAnnotations;
+#endif
 
 namespace Caas.Models
 {
@@ -11,7 +13,9 @@ namespace Caas.Models
         /// <summary>
         /// Get or set the <see cref="ConfigAssociation"/> id
         /// </summary>
+#if NETCOREAPP2_0
         [Key]
+#endif
         public int ConfigAssociationId { get; set; }
         private Config _config;
         /// <summary>
@@ -30,7 +34,9 @@ namespace Caas.Models
         /// <summary>
         /// Get or set the <see cref="Config.ConfigId"/>
         /// </summary>
+#if NETCOREAPP2_0
         [Required]
+#endif
         public int ConfigId
         {
             get => _configId;
@@ -58,7 +64,9 @@ namespace Caas.Models
         /// <summary>
         /// Get or set the <see cref="Config.ConfigId"/>
         /// </summary>
+#if NETCOREAPP2_0
         [Required]
+#endif
         public int ClientId
         {
             get => _clientId;
@@ -72,7 +80,9 @@ namespace Caas.Models
         /// <summary>
         /// Get or set when <see cref="ConfigAssociation"/> was created
         /// </summary>
+#if NETCOREAPP2_0
         [Required]
+#endif
         public DateTime Created { get; set; }
     }
 }

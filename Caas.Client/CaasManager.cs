@@ -46,13 +46,13 @@ namespace Caas.Client
             if (!isInitialized)
                 throw new CaasException(CaasException.NOT_INITIALIZED);
             
-            HttpResponseMessage result = await httpClient.GetAsync(string.Format(url, values));
+            HttpResponseMessage result = await httpClient.GetAsync(string.Format(url, values)).ConfigureAwait(false);
 
             if (result.IsSuccessStatusCode)
             {
                 try
                 {
-                    return JsonConvert.DeserializeObject<T>(await result.Content.ReadAsStringAsync());
+                    return JsonConvert.DeserializeObject<T>(await result.Content.ReadAsStringAsync().ConfigureAwait(false));
                 }
                 catch (JsonSerializationException jsex)
                 {
@@ -68,7 +68,6 @@ namespace Caas.Client
             else
                 throw new CaasException(CaasException.UNKNOWN_SERVER_RESPONSE, result.ReasonPhrase);
         }
-
         #region Config
         /// <summary>
         /// Get a specific <see cref="Config"/> by <see cref="Config.Key"/> for a <see cref="Client"/>
@@ -99,6 +98,39 @@ namespace Caas.Client
         /// <param name="type">The <see cref="ClientType.Name"/></param>
         /// <returns>All <see cref="Config"/> or null</returns>
         public static Task<IEnumerable<Config>> GetAllConfigsForClientAsync(string identifier, string type) => GetResponseAsync<IEnumerable<Config>>("/api/config/getconfigsforclient?identifier={0}&type={1}", identifier, type);
+
+        /// <summary>
+        /// Check In <see cref="Client"/>
+        /// </summary>
+        /// <param name="identifier">The <see cref="Client.Identifier"/></param>
+        /// <param name="type">The <see cref="ClientType.Name"/></param>
+        /// <returns></returns>
+        public static async Task CheckInClient(string identifier, string type)
+        {
+            if (!isInitialized)
+                throw new CaasException(CaasException.NOT_INITIALIZED);
+
+            var client = new Models.Client()
+            {
+                Identifier = identifier,
+                ClientType = new ClientType()
+                {
+                    Name = type
+                }
+            };
+            HttpResponseMessage result = await httpClient.PostAsync("/api/config/checkin", new StringContent(JsonConvert.SerializeObject(client), System.Text.Encoding.UTF8, "application/json")).ConfigureAwait(false);
+
+            if (result.IsSuccessStatusCode)
+                return;
+            else if (result.StatusCode == System.Net.HttpStatusCode.NoContent)
+                return;
+            else if (result.StatusCode == System.Net.HttpStatusCode.InternalServerError)
+                throw new CaasException(CaasException.SERVER_ERROR, result.ReasonPhrase);
+            else if (result.StatusCode == System.Net.HttpStatusCode.NotFound)
+                throw new CaasException(CaasException.SERVER_NOT_FOUND, result.ReasonPhrase);
+            else
+                throw new CaasException(CaasException.UNKNOWN_SERVER_RESPONSE, result.ReasonPhrase);
+        }
         #endregion
     }
 }
