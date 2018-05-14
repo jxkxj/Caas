@@ -56,6 +56,8 @@ namespace Caas.Web.Apis
                         Identifier = identifier
                     }).Entity;
 
+					_context.SaveChanges();
+
                     //Add to cache
                     _cache.Set(string.Format(CacheKeys.CLIENT_KEY, identifier, type), client, DateTime.Now.AddMinutes(CacheKeys.CacheTimeout));
                 }
@@ -70,6 +72,8 @@ namespace Caas.Web.Apis
                 Client = client,
                 CheckInTime = DateTime.UtcNow
             });
+
+			_context.SaveChanges();
 
             return true;
         }        
@@ -177,7 +181,7 @@ namespace Caas.Web.Apis
         /// <param name="client">The <see cref="Client"/> with at least the <see cref="Client.Identifier"/> and <see cref="Client.ClientType.Name"/></param>
         /// <returns></returns>
         [HttpPost]
-        public IActionResult CheckIn(Client client)
+        public IActionResult CheckIn([FromBody]Client client)
         {
             if (client == null)
                 return BadRequest();
