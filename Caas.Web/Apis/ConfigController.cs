@@ -21,11 +21,12 @@ namespace Caas.Web.Apis
         /// Basic Constructor
         /// </summary>
         /// <param name="context"><see cref="DatabaseContext"/></param>
+		/// <param name="cache"><see cref="IMemoryCache"/></param>
         public ConfigController(DatabaseContext context, IMemoryCache cache)
         {
             _context = context;
             _cache = cache;
-        }
+        }       
 
         private bool CheckInRequest(string identifier, string type)
         {
