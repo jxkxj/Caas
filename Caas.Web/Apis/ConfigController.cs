@@ -28,7 +28,7 @@ namespace Caas.Web.Apis
 			_cache = cache;
 		}
 
-		private bool CheckInRequest(string identifier, string type)
+		private bool CheckInRequest(string identifier, string type, string extraData = null)
 		{
 			Client client;
 
@@ -71,6 +71,7 @@ namespace Caas.Web.Apis
 			{
 				ClientId = client.ClientId,
 				Client = client,
+                ExtraData = extraData,
 				CheckInTime = DateTime.UtcNow
 			});
 
@@ -179,19 +180,21 @@ namespace Caas.Web.Apis
 		/// Allow a <see cref="Client"/> to check in
 		/// Store a new <see cref="Models.CheckIn"/> record
 		/// </summary>
-		/// <param name="client">The <see cref="Client"/> with at least the <see cref="Client.Identifier"/> and <see cref="Client.ClientType.Name"/></param>
+		/// <param name="checkIn">The <see cref="Models.CheckIn"/> with at least the <see cref="Client.Identifier"/> and <see cref="ClientType.Name"/></param>
 		/// <returns></returns>
 		[HttpPost]
-		public IActionResult CheckIn([FromBody]Client client)
+		public IActionResult CheckIn([FromBody]CheckIn checkIn)
 		{
-			if (client == null)
+			if (checkIn == null)
 				return BadRequest();
-			if (string.IsNullOrEmpty(client.Identifier))
+			if (checkIn.Client == null)
 				return BadRequest();
-			if (string.IsNullOrEmpty(client.ClientType?.Name))
+			if (string.IsNullOrEmpty(checkIn.Client.Identifier))
 				return BadRequest();
-
-			if (CheckInRequest(client.Identifier, client.ClientType.Name))
+			if (string.IsNullOrEmpty(checkIn.Client.ClientType?.Name))
+				return BadRequest();
+            
+			if (CheckInRequest(checkIn.Client.Identifier, checkIn.Client.ClientType.Name, checkIn.ExtraData))
 				return Ok();
 
 			return BadRequest();

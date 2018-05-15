@@ -221,6 +221,8 @@ Task<IEnumerable<Config>> GetAllConfigsAsync();
 Task<IEnumerable<Config>> GetAllConfigsForClientAsync(string identifier, string type);
 
 Task CheckInClient(string identifier, string type);
+
+Task CheckInClient<T>(string identifier, string type, T extraData);
 ```
 
 ## FAQ
@@ -245,7 +247,8 @@ public class Client
 **How do I add new configs and clients?**
 
 Currently, you will have to build a way to do this or use SQL.  We plan on coming out with a manager soon to help you do this.
-'''NEW''': You can also have your devices "Check In" and if the client doesn't exist, it will create them automatically.
+
+**NEW**: You can also have your devices "Check In" and if the client doesn't exist, it will create them automatically.
 
 ## License
 Under MIT (see license file)

@@ -78,9 +78,9 @@ namespace Caas.Client
         }
 #region Config
         /// <summary>
-        /// Get a specific <see cref="Config"/> by <see cref="Config.Key"/> for a <see cref="Client"/>
+        /// Get a specific <see cref="Config"/> by <see cref="Config.Key"/> for a <see cref="Models.Client"/>
         /// </summary>
-        /// <param name="identifier">The <see cref="Client.Identifier"/></param>
+        /// <param name="identifier">The <see cref="Models.Client.Identifier"/></param>
         /// <param name="type">The <see cref="ClientType.Name"/></param>
         /// <param name="key">The <see cref="Config.Key"/></param>
         /// <returns>The <see cref="Config"/> or null</returns>
@@ -100,20 +100,29 @@ namespace Caas.Client
         public static Task<IEnumerable<Config>> GetAllConfigsAsync() => GetResponseAsync<IEnumerable<Config>>("/api/config/getallconfigs");
 
         /// <summary>
-        /// Get all <see cref="Config"/> for a <see cref="Client"/>
+        /// Get all <see cref="Config"/> for a <see cref="Models.Client"/>
         /// </summary>
-        /// <param name="identifier">The <see cref="Client.Identifier"/></param>
+		/// <param name="identifier">The <see cref="Models.Client.Identifier"/></param>
         /// <param name="type">The <see cref="ClientType.Name"/></param>
         /// <returns>All <see cref="Config"/> or null</returns>
         public static Task<IEnumerable<Config>> GetAllConfigsForClientAsync(string identifier, string type) => GetResponseAsync<IEnumerable<Config>>("/api/config/getallconfigsforclient?identifier={0}&type={1}", identifier, type);
 
-        /// <summary>
-        /// Check In <see cref="Client"/>
+		/// <summary>
+        /// Check In <see cref="Models.Client"/>
         /// </summary>
-        /// <param name="identifier">The <see cref="Client.Identifier"/></param>
+        /// <param name="identifier">The <see cref="Models.Client.Identifier"/></param>
         /// <param name="type">The <see cref="ClientType.Name"/></param>
         /// <returns></returns>
-        public static async Task CheckInClient(string identifier, string type)
+        public static Task CheckInClient(string identifier, string type) => CheckInClient<string>(identifier, type, null);      
+
+        /// <summary>
+        /// Check In <see cref="Models.Client"/> with extra data
+        /// </summary>
+        /// <param name="identifier">The <see cref="Models.Client.Identifier"/></param>
+        /// <param name="type">The <see cref="ClientType.Name"/></param>
+		/// <param name="extraData">Extra data you want stored with the <see cref=" Models.CheckIn"/></param>
+        /// <returns></returns>
+        public static async Task CheckInClient<T>(string identifier, string type, T extraData)
         {
             if (!isInitialized)
                 throw new CaasException(CaasException.NOT_INITIALIZED);
@@ -126,7 +135,13 @@ namespace Caas.Client
                     Name = type
                 }
             };
-            HttpResponseMessage result = await httpClient.PostAsync("/api/config/checkin", new StringContent(JsonConvert.SerializeObject(client), System.Text.Encoding.UTF8, "application/json")).ConfigureAwait(false);
+
+			var checkIn = new Models.CheckIn<T>()
+			{
+				Client = client,
+				ConvertedExtraData = extraData
+			};
+            HttpResponseMessage result = await httpClient.PostAsync("/api/config/checkin", new StringContent(JsonConvert.SerializeObject(checkIn), System.Text.Encoding.UTF8, "application/json")).ConfigureAwait(false);
 
             if (result.IsSuccessStatusCode)
                 return;
