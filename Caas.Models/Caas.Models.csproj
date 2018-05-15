@@ -21,6 +21,16 @@ We all have applications whether the web, a desktop app, or a mobile app that ne
     <DebugType></DebugType>
     <DocumentationFile>bin\Release\netstandard1.3\Caas.Models.xml</DocumentationFile>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Test|AnyCPU' ">
+    <IntermediateOutputPath>obj\Debug\netstandard1.3</IntermediateOutputPath>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>portable</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Test\netstandard1.3</OutputPath>
+    <DefineConstants>TRACE;DEBUG;NETSTANDARD1_3</DefineConstants>
+    <NoWarn>1701;1702;1705</NoWarn>
+    <NoStdLib>true</NoStdLib>
+  </PropertyGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
   </ItemGroup>

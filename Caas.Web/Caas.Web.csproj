@@ -11,6 +11,16 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DocumentationFile>bin\Release\netcoreapp2.0\Caas.Web.xml</DocumentationFile>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Test|AnyCPU' ">
+    <IntermediateOutputPath>obj\Debug\netcoreapp2.0</IntermediateOutputPath>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>portable</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Test\netcoreapp2.0</OutputPath>
+    <DefineConstants>TRACE;NETCOREAPP2_0;TEST</DefineConstants>
+    <NoWarn>1701;1702;1705</NoWarn>
+    <NoStdLib>true</NoStdLib>
+  </PropertyGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
     <Folder Include="wwwroot\" />
@@ -27,5 +37,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Caas.Models\Caas.Models.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="tests.db" />
   </ItemGroup>
 </Project>
