@@ -112,13 +112,18 @@ namespace Caas.Test
                 .UseSqlite(connection)
                 .Options;
 
+			CheckIn lastCheckIn = null;
 			using (var context = new DatabaseContext(options))
 			{
-				return context.CheckIn.OrderByDescending(x => x.CheckInTime)
+				lastCheckIn = context.CheckIn.OrderByDescending(x => x.CheckInTime)
 										 .Include(x => x.Client)
 										 .Include(x => x.Client.ClientType)
 										 .FirstOrDefault();
 			}
+
+			connection.Close();
+
+			return lastCheckIn;
 		}      
 
         [TestMethod]
