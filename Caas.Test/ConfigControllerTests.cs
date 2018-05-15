@@ -2,29 +2,104 @@ using System;
 using System.Threading.Tasks;
 using System.Net.Http;
 using System.Linq;
+using System.IO;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
+using Caas.Models;
 using Caas.Client;
+using Caas.Web;
 
 namespace Caas.Test
 {
     [TestClass]
     public class ConfigControllerTests   
     {
-		readonly TestServer _server;
-		readonly HttpClient _client;
+		TestServer testServer;
+		HttpClient client;
 
         public ConfigControllerTests()
 		{
-			_server = new TestServer(new WebHostBuilder()
-                .UseStartup<Web.Startup>());
-			_client = _server.CreateClient();
+			var host = WebHost.CreateDefaultBuilder(null)
+							  .UseStartup<Startup>();
+			testServer = new TestServer(host);
+			client = testServer.CreateClient();
 
-			CaasManager.Init(_client);
+			CaasManager.Init(client);
 		}
+
+
+        [TestInitialize]
+		public void BuildConfigs()
+		{
+			var connection = new SqliteConnection("Data Source = tests.db");
+			connection.Open();
+
+			var options = new DbContextOptionsBuilder<DatabaseContext>()
+				.UseSqlite(connection)
+				.Options;
+
+            using(var context = new DatabaseContext(options))
+			{
+				var config1 = context.Config.Add(new Config()
+				{
+					Key = "Config1",
+					Value = "Value1",
+					Created = DateTime.UtcNow
+				}).Entity;
+				var config2 = context.Config.Add(new Config()
+				{
+					Key = "Config2",
+					Value = "Value2",
+					Created = DateTime.UtcNow
+				}).Entity;
+				var config3 = context.Config.Add(new Config()
+				{
+					Key = "Config3",
+					Value = "Value3",
+					Created = DateTime.UtcNow
+				}).Entity;
+				var clientType = context.ClientType.Add(new ClientType()
+				{
+					Name = "UITest",
+					Created = DateTime.UtcNow
+				}).Entity;
+				var client = context.Client.Add(new Models.Client()
+				{
+					Identifier = "UITestRunner",
+					ClientType = clientType,
+					Created = DateTime.UtcNow
+				}).Entity;
+				context.ConfigAssociation.Add(new ConfigAssociation()
+				{
+					Client = client,
+					Config = config2,
+					Created = DateTime.UtcNow
+				});
+				context.ConfigAssociation.Add(new ConfigAssociation()
+                {
+                    Client = client,
+                    Config = config3,
+                    Created = DateTime.UtcNow
+                });
+
+				context.SaveChanges();
+			}
+
+			connection.Close();
+		}
+
+        [TestCleanup]
+        public void CleanUp()
+		{
+			//Remove SQLite DB
+			File.Delete("tests.db");
+		}      
 
         [TestMethod]
         public async Task CheckIn()
@@ -38,8 +113,7 @@ namespace Caas.Test
 		{
 			var config = await CaasManager.GetConfigAsync("Config1");
 
-			Assert.AreEqual(1, config.ConfigId);
-			Assert.AreEqual(DateTime.Parse("2018-05-15 02:50:30.087361"), config.Created);
+			Assert.AreEqual(1, config.ConfigId);         
 			Assert.AreEqual("Config1", config.Key);
 			Assert.AreEqual("Value1", config.Value);
 		}
@@ -50,7 +124,6 @@ namespace Caas.Test
 			var config = await CaasManager.GetConfigForClientAsync("UITestRunner", "UITest", "Config2");
 
 			Assert.AreEqual(2, config.ConfigId);
-            Assert.AreEqual(DateTime.Parse("2018-05-15 02:50:30.087361"), config.Created);
             Assert.AreEqual("Config2", config.Key);
             Assert.AreEqual("Value2", config.Value);
 		}

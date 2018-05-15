@@ -107,7 +107,7 @@ namespace Caas.Web.Apis
 			if (client == null)
 				return NoContent();
 
-			var config = _context.ConfigAssociation.Where(c => c.ClientId == client.ClientId && c.Config.Key == key).Select(c => c.Config);
+			var config = _context.ConfigAssociation.Where(c => c.ClientId == client.ClientId && c.Config.Key == key).Select(c => c.Config).FirstOrDefault();
 			if (config == null)
 				return NoContent();
 			else

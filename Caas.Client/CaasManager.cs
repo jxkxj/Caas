@@ -42,30 +42,25 @@ namespace Caas.Client
 		}
 
 #if TEST
-		/// <summary>
-		/// Init the specified client.
-		/// Used for UI Tests
-		/// </summary>
-		/// <param name="client">Client.</param>  
 		public static void Init(HttpClient client)
 		{
 			httpClient = client;
-			isInitialized = true;         
+			isInitialized = true;
 		}
 #endif
 
-        private static async Task<T> GetResponseAsync<T>(string url, params string[] values) where T : class
-        {
-            if (!isInitialized)
-                throw new CaasException(CaasException.NOT_INITIALIZED);
-            
-            HttpResponseMessage result = await httpClient.GetAsync(string.Format(url, values)).ConfigureAwait(false);
+		private static async Task<T> GetResponseAsync<T>(string url, params string[] values) where T : class
+		{
+			if (!isInitialized)
+				throw new CaasException(CaasException.NOT_INITIALIZED);
 
-            if (result.IsSuccessStatusCode)
-            {
-                try
-                {
-                    return JsonConvert.DeserializeObject<T>(await result.Content.ReadAsStringAsync().ConfigureAwait(false));
+			HttpResponseMessage result = await httpClient.GetAsync(string.Format(url, values)).ConfigureAwait(false);
+
+			if (result.IsSuccessStatusCode)
+			{
+				try
+				{
+					return JsonConvert.DeserializeObject<T>(await result.Content.ReadAsStringAsync().ConfigureAwait(false));
                 }
                 catch (JsonSerializationException jsex)
                 {
@@ -110,7 +105,7 @@ namespace Caas.Client
         /// <param name="identifier">The <see cref="Client.Identifier"/></param>
         /// <param name="type">The <see cref="ClientType.Name"/></param>
         /// <returns>All <see cref="Config"/> or null</returns>
-        public static Task<IEnumerable<Config>> GetAllConfigsForClientAsync(string identifier, string type) => GetResponseAsync<IEnumerable<Config>>("/api/config/getconfigsforclient?identifier={0}&type={1}", identifier, type);
+        public static Task<IEnumerable<Config>> GetAllConfigsForClientAsync(string identifier, string type) => GetResponseAsync<IEnumerable<Config>>("/api/config/getallconfigsforclient?identifier={0}&type={1}", identifier, type);
 
         /// <summary>
         /// Check In <see cref="Client"/>
