@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Hosting;
 using Caas.Models;
 using Caas.Client;
 using Caas.Web;
+using Newtonsoft.Json;
 
 namespace Caas.Test
 {
@@ -23,14 +24,16 @@ namespace Caas.Test
 		TestServer testServer;
 		HttpClient client;
 
-        public ConfigControllerTests()
+		public ConfigControllerTests()
 		{
 			var host = WebHost.CreateDefaultBuilder(null)
 							  .UseStartup<Startup>();
 			testServer = new TestServer(host);
 			client = testServer.CreateClient();
 
+#if TEST
 			CaasManager.Init(client);
+#endif
 		}
               
         [TestInitialize]
@@ -100,12 +103,54 @@ namespace Caas.Test
 			File.Delete("tests.db");
 		}      
 
+        CheckIn GetLastCheckIn()
+		{
+			var connection = new SqliteConnection("Data Source = tests.db");
+            connection.Open();
+
+            var options = new DbContextOptionsBuilder<DatabaseContext>()
+                .UseSqlite(connection)
+                .Options;
+
+			CheckIn lastCheckIn = null;
+			using (var context = new DatabaseContext(options))
+			{
+				lastCheckIn = context.CheckIn.OrderByDescending(x => x.CheckInTime)
+										 .Include(x => x.Client)
+										 .Include(x => x.Client.ClientType)
+										 .FirstOrDefault();
+			}
+
+			connection.Close();
+
+			return lastCheckIn;
+		}      
+
         [TestMethod]
         public async Task CheckIn()
         {
 			await CaasManager.CheckInClient("UITestRunner", "UITest");
-			Assert.IsTrue(true);
+            
+			var lastCheckIn = GetLastCheckIn();
+			Assert.AreEqual("UITestRunner", lastCheckIn.Client.Identifier);
+			Assert.AreEqual("UITest", lastCheckIn.Client.ClientType.Name);
+			Assert.IsNull(lastCheckIn.ExtraData);
         }
+
+        [TestMethod]
+        public async Task CheckInWithExtraData()
+		{
+			Tuple<double, double> model = new Tuple<double, double>(45, -45);
+
+			await CaasManager.CheckInClient("UITestRunner", "UITest", model);
+            
+			var lastCheckIn = GetLastCheckIn();
+            Assert.AreEqual("UITestRunner", lastCheckIn.Client.Identifier);
+            Assert.AreEqual("UITest", lastCheckIn.Client.ClientType.Name);
+			var extraData = JsonConvert.DeserializeObject<Tuple<double, double>>(lastCheckIn.ExtraData);
+			Assert.AreEqual(45, extraData.Item1);
+			Assert.AreEqual(-45, extraData.Item2);
+		}
 
         [TestMethod]
         public async Task GetConfig()
