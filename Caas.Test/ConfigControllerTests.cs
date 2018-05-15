@@ -32,8 +32,7 @@ namespace Caas.Test
 
 			CaasManager.Init(client);
 		}
-
-
+              
         [TestInitialize]
 		public void BuildConfigs()
 		{
