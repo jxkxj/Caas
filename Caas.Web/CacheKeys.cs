@@ -15,7 +15,7 @@ namespace Caas.Web
         {
             get
             {
-				if(_cacheTimeout == -1 && (Environment.GetEnvironmentVariable("INMEMORYCACHE_USE") ?? "true") == "true")
+		if(_cacheTimeout == -1 && (Environment.GetEnvironmentVariable("INMEMORYCACHE_USE") ?? "true") == "true")
                 {
                     string timeout = Environment.GetEnvironmentVariable("INMEMORYCACHE_TIMEOUT");
                     if (!string.IsNullOrEmpty(timeout) && int.TryParse(timeout, out int t))
