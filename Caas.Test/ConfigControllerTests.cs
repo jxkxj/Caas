@@ -103,11 +103,8 @@ namespace Caas.Test
 			File.Delete("tests.db");
 		}      
 
-        [TestMethod]
-        public async Task CheckIn()
-        {
-			await CaasManager.CheckInClient("UITestRunner", "UITest");
-
+        CheckIn GetLastCheckIn()
+		{
 			var connection = new SqliteConnection("Data Source = tests.db");
             connection.Open();
 
@@ -117,14 +114,22 @@ namespace Caas.Test
 
 			using (var context = new DatabaseContext(options))
 			{
-				var lastCheckIn = context.CheckIn.OrderByDescending(x => x.CheckInTime)
-				                         .Include(x => x.Client)
-				                         .Include(x => x.Client.ClientType)
-				                         .FirstOrDefault();
-				Assert.AreEqual("UITestRunner", lastCheckIn.Client.Identifier);
-				Assert.AreEqual("UITest", lastCheckIn.Client.ClientType.Name);
-				Assert.IsNull(lastCheckIn.ExtraData);
+				return context.CheckIn.OrderByDescending(x => x.CheckInTime)
+										 .Include(x => x.Client)
+										 .Include(x => x.Client.ClientType)
+										 .FirstOrDefault();
 			}
+		}      
+
+        [TestMethod]
+        public async Task CheckIn()
+        {
+			await CaasManager.CheckInClient("UITestRunner", "UITest");
+            
+			var lastCheckIn = GetLastCheckIn();
+			Assert.AreEqual("UITestRunner", lastCheckIn.Client.Identifier);
+			Assert.AreEqual("UITest", lastCheckIn.Client.ClientType.Name);
+			Assert.IsNull(lastCheckIn.ExtraData);
         }
 
         [TestMethod]
@@ -133,26 +138,13 @@ namespace Caas.Test
 			Tuple<double, double> model = new Tuple<double, double>(45, -45);
 
 			await CaasManager.CheckInClient("UITestRunner", "UITest", model);
-
-			var connection = new SqliteConnection("Data Source = tests.db");
-            connection.Open();
-
-            var options = new DbContextOptionsBuilder<DatabaseContext>()
-                .UseSqlite(connection)
-                .Options;
-
-            using (var context = new DatabaseContext(options))
-            {
-                var lastCheckIn = context.CheckIn.OrderByDescending(x => x.CheckInTime)
-                                         .Include(x => x.Client)
-                                         .Include(x => x.Client.ClientType)
-                                         .FirstOrDefault();
-                Assert.AreEqual("UITestRunner", lastCheckIn.Client.Identifier);
-                Assert.AreEqual("UITest", lastCheckIn.Client.ClientType.Name);
-				var extraData = JsonConvert.DeserializeObject<Tuple<double, double>>(lastCheckIn.ExtraData);
-				Assert.AreEqual(45, extraData.Item1);
-				Assert.AreEqual(-45, extraData.Item2);
-            }
+            
+			var lastCheckIn = GetLastCheckIn();
+            Assert.AreEqual("UITestRunner", lastCheckIn.Client.Identifier);
+            Assert.AreEqual("UITest", lastCheckIn.Client.ClientType.Name);
+			var extraData = JsonConvert.DeserializeObject<Tuple<double, double>>(lastCheckIn.ExtraData);
+			Assert.AreEqual(45, extraData.Item1);
+			Assert.AreEqual(-45, extraData.Item2);
 		}
 
         [TestMethod]
