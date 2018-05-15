@@ -1,24 +1,25 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
 
 using Caas.Models;
 
 namespace Caas.Web
 {
-    /// <summary>
-    /// Database Manager for Caas
-    /// </summary>
-    public class DatabaseContext : DbContext
-    {
-        /// <summary>
-        /// Ctor
-        /// Ensures database is created
-        /// </summary>
-        /// <param name="options"></param>
-        public DatabaseContext(DbContextOptions<DatabaseContext> options)
-            : base(options)
-        {
-            this.Database.EnsureCreated();
-        }
+	/// <summary>
+	/// Database Manager for Caas
+	/// </summary>
+	public class DatabaseContext : DbContext
+	{
+		/// <summary>
+		/// Ctor
+		/// Ensures database is created
+		/// </summary>
+		/// <param name="options"></param>
+		public DatabaseContext(DbContextOptions<DatabaseContext> options)
+			: base(options)
+		{
+			this.Database.EnsureCreated();
+		}
 
         /// <summary>
         /// Get all <see cref="Clients"/>

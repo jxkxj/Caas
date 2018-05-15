@@ -21,7 +21,7 @@ namespace Caas.Web
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-#if DEBUG
+#if DEBUG || TEST
 			Environment.SetEnvironmentVariable("INMEMORYCACHE_USE", "true", EnvironmentVariableTarget.Process);
 			Environment.SetEnvironmentVariable("CAAS_CREATECLIENTS", "true", EnvironmentVariableTarget.Process);
 #endif
@@ -42,10 +42,12 @@ namespace Caas.Web
 			{
 #if DEBUG
 				options.UseSqlite("Data Source=configs.db");
+#elif TEST
+				options.UseSqlite("Data Source=tests.db");
 #else
 				options.UseSqlServer(connString);
 #endif
-            });
+			});
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

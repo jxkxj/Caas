@@ -9,50 +9,58 @@ using Caas.Models;
 
 namespace Caas.Client
 {
-    /// <summary>
-    /// Manages all calls back to Caas so all you have to worry
-    /// about is handling the <see cref="Config"/>
-    /// </summary>
-    public static class CaasManager
-    {
-        private static bool isInitialized;
-        private static HttpClient httpClient;
+	/// <summary>
+	/// Manages all calls back to Caas so all you have to worry
+	/// about is handling the <see cref="Config"/>
+	/// </summary>   
+	public static class CaasManager
+	{
+		private static bool isInitialized;
+		private static HttpClient httpClient;
 
-        /// <summary>
-        /// Initialize <see cref="CaasManager"/> with your endpoint and optional <see cref="HttpMessageHandler"/>
-        /// </summary>
-        /// <param name="endpoint">Root endpoint to Caas</param>
-        /// <param name="httpHandler">Optional <see cref="HttpMessageHandler"/> for <see cref="HttpClient"/></param>
-        public static void Init(string endpoint, HttpMessageHandler httpHandler = null)
-        {
-            if (Uri.TryCreate(endpoint, UriKind.Absolute, out Uri endpointUri))
-            {
-                if (httpHandler == null)
-                    httpClient = new HttpClient();
-                else
-                    httpClient = new HttpClient(httpHandler);
-                httpClient.BaseAddress = endpointUri;
-                isInitialized = true;
-            }
-            else
-            {
-                isInitialized = false;
-                throw new CaasException(CaasException.INVALID_URI);
-            }
-        }
+		/// <summary>
+		/// Initialize <see cref="CaasManager"/> with your endpoint and optional <see cref="HttpMessageHandler"/>
+		/// </summary>
+		/// <param name="endpoint">Root endpoint to Caas</param>
+		/// <param name="httpHandler">Optional <see cref="HttpMessageHandler"/> for <see cref="HttpClient"/></param>
+		public static void Init(string endpoint, HttpMessageHandler httpHandler = null)
+		{
+			if (Uri.TryCreate(endpoint, UriKind.Absolute, out Uri endpointUri))
+			{
+				if (httpHandler == null)
+					httpClient = new HttpClient();
+				else
+					httpClient = new HttpClient(httpHandler);
+				httpClient.BaseAddress = endpointUri;
+				isInitialized = true;
+			}
+			else
+			{
+				isInitialized = false;
+				throw new CaasException(CaasException.INVALID_URI);
+			}
+		}
 
-        private static async Task<T> GetResponseAsync<T>(string url, params string[] values) where T : class
-        {
-            if (!isInitialized)
-                throw new CaasException(CaasException.NOT_INITIALIZED);
-            
-            HttpResponseMessage result = await httpClient.GetAsync(string.Format(url, values)).ConfigureAwait(false);
+#if TEST
+		public static void Init(HttpClient client)
+		{
+			httpClient = client;
+			isInitialized = true;
+		}
+#endif
 
-            if (result.IsSuccessStatusCode)
-            {
-                try
-                {
-                    return JsonConvert.DeserializeObject<T>(await result.Content.ReadAsStringAsync().ConfigureAwait(false));
+		private static async Task<T> GetResponseAsync<T>(string url, params string[] values) where T : class
+		{
+			if (!isInitialized)
+				throw new CaasException(CaasException.NOT_INITIALIZED);
+
+			HttpResponseMessage result = await httpClient.GetAsync(string.Format(url, values)).ConfigureAwait(false);
+
+			if (result.IsSuccessStatusCode)
+			{
+				try
+				{
+					return JsonConvert.DeserializeObject<T>(await result.Content.ReadAsStringAsync().ConfigureAwait(false));
                 }
                 catch (JsonSerializationException jsex)
                 {
@@ -68,7 +76,7 @@ namespace Caas.Client
             else
                 throw new CaasException(CaasException.UNKNOWN_SERVER_RESPONSE, result.ReasonPhrase);
         }
-        #region Config
+#region Config
         /// <summary>
         /// Get a specific <see cref="Config"/> by <see cref="Config.Key"/> for a <see cref="Client"/>
         /// </summary>
@@ -97,7 +105,7 @@ namespace Caas.Client
         /// <param name="identifier">The <see cref="Client.Identifier"/></param>
         /// <param name="type">The <see cref="ClientType.Name"/></param>
         /// <returns>All <see cref="Config"/> or null</returns>
-        public static Task<IEnumerable<Config>> GetAllConfigsForClientAsync(string identifier, string type) => GetResponseAsync<IEnumerable<Config>>("/api/config/getconfigsforclient?identifier={0}&type={1}", identifier, type);
+        public static Task<IEnumerable<Config>> GetAllConfigsForClientAsync(string identifier, string type) => GetResponseAsync<IEnumerable<Config>>("/api/config/getallconfigsforclient?identifier={0}&type={1}", identifier, type);
 
         /// <summary>
         /// Check In <see cref="Client"/>
@@ -131,6 +139,6 @@ namespace Caas.Client
             else
                 throw new CaasException(CaasException.UNKNOWN_SERVER_RESPONSE, result.ReasonPhrase);
         }
-        #endregion
+#endregion
     }
 }
