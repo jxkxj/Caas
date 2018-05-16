@@ -1,5 +1,7 @@
 ﻿using System;
 
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -48,6 +50,30 @@ namespace Caas.Web
 				options.UseSqlServer(connString);
 #endif
 			});
+
+			//Add Authentication for Portal Management
+			services.AddIdentity<ApplicationUser, IdentityRole>()
+					.AddEntityFrameworkStores<DatabaseContext>()
+			        .AddDefaultTokenProviders();
+
+			services.Configure<IdentityOptions>(options =>
+			{
+				// Lockout settings
+				options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30); //TODO: Configurable
+				options.Lockout.MaxFailedAccessAttempts = 10; //TODO: Configurable
+
+				// User settings
+                options.User.RequireUniqueEmail = true;
+			});
+
+			services.ConfigureApplicationCookie(options =>
+			{
+				options.ExpireTimeSpan = TimeSpan.FromMinutes(30); //TODO: Configurable
+                
+				options.LoginPath = "/Account/Login";
+                options.AccessDeniedPath = "/Account/AccessDenied";
+                options.SlidingExpiration = true;
+			});
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -60,12 +86,19 @@ namespace Caas.Web
             }
             else
                 loggerFactory.AddEventSourceLogger();
-            
+
+			app.UseAuthentication();
+
+			app.UseStaticFiles();
+
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
                     name: "api",
                     template: "api/{controller}/{action}/{id?}");
+				routes.MapRoute(
+					name: "default",
+					template: "{controller}/{action}/{id?}");
             });
         }
     }

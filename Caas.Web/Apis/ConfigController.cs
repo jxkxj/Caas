@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Caching.Memory;
 
 using Caas.Models;
@@ -11,6 +12,7 @@ namespace Caas.Web.Apis
 	/// Manage getting all <see cref="Config"/> for <see cref="Client"/>
 	/// </summary>
 	[Produces("application/json")]
+    [AllowAnonymous]
 	public class ConfigController : Controller
 	{
 		private readonly DatabaseContext _context;
