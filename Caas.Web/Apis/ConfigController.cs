@@ -69,10 +69,9 @@ namespace Caas.Web.Apis
 			}
 
 			//Add Check In
-			_context.CheckIn.Add(new Models.CheckIn()
+			_context.CheckIn.Add(new Caas.Models.CheckIn()
 			{
 				ClientId = client.ClientId,
-				Client = client,
                 ExtraData = extraData,
 				CheckInTime = DateTime.UtcNow
 			});
@@ -198,7 +197,7 @@ namespace Caas.Web.Apis
             
 			if (CheckInRequest(checkIn.Client.Identifier, checkIn.Client.ClientType.Name, checkIn.ExtraData))
 				return Ok();
-
+            
 			return BadRequest();
 		}
 	}

@@ -62,7 +62,8 @@ namespace Caas.Web
 				options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30); //TODO: Configurable
 				options.Lockout.MaxFailedAccessAttempts = 10; //TODO: Configurable
 
-				// User settings
+                // User settings
+                options.Password.RequireNonAlphanumeric = false;
                 options.User.RequireUniqueEmail = true;
 			});
 
