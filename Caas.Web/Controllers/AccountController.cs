@@ -55,12 +55,11 @@ namespace Caas.Web.Controllers
 			return View(model);
 		}
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpGet]
         public async Task<IActionResult> Logout()
 		{
 			await _signInManager.SignOutAsync();
-			return RedirectToPage("");
+            return RedirectToAction("Login");
 		}
 
 		private IActionResult RedirectToLocal(string returnUrl)

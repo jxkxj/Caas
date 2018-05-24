@@ -47,7 +47,7 @@ namespace Caas.Models
             set
             {
                 _clientTypeId = value;
-                if (_clientTypeId != _clientType.ClientTypeId)
+                if (_clientType != null && _clientTypeId != _clientType.ClientTypeId)
                     _clientType = null;
             }
         }
@@ -85,7 +85,7 @@ namespace Caas.Models
             set
             {
                 _parentClientId = value;
-                if (_parentClientId != Parent?.ClientId)
+                if (_parent != null && _parentClientId != _parent.ClientId)
                     _parent = null;
             }
         }
