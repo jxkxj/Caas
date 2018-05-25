@@ -20,12 +20,15 @@ var clientApp = new Vue({
             this.$http.get('/api/config/getallclients').then(response => {
                 this.clients = response.body
                 manageConfigAssociationsApp.clients = response.body
+                manageClientApp.clients = response.body
             })
         },
         editClient: function(client) {
             $("select").material_select()
             $("#clientTypeSelection").val(client.clientType.name)
             $("#clientTypeSelection").material_select(client.clientType.name)
+            $("#parentClientSelection").val((client.parentClientId) ? client.parentClientId : '')
+            $("#parentClientSelection").material_select((client.parentClientId) ? client.parentClientId : '')
             manageClientApp.mode = 'edit'
             manageClientApp.client = {
                 ClientId: client.clientId,
@@ -33,6 +36,7 @@ var clientApp = new Vue({
                 ClientType: {
                     Name: client.clientType.name
                 },
+                ParentClientId: client.parentClientId,
                 Created: client.created,
                 Updated: client.updated
             }
@@ -199,6 +203,7 @@ var manageClientApp = new Vue({
             }
         },
         clientTypes: [],
+        clients: [],
         mode: 'create'
     },
     methods: {
@@ -208,15 +213,19 @@ var manageClientApp = new Vue({
                 Identifier: '',
                 ClientType: {
                     Name: ''
-                }
+                },
+                ParentClientId: null
             }
             $("select").material_select()
             $("#clientTypeSelection").val('')
             $("#clientTypeSelection").material_select('')
+            $("#parentClientSelection").val('')
+            $("#parentClientSelection").material_select('')
         },
         addClient: function() {
             loadingApp.loading = true
             this.client.ClientType.Name = $("#clientTypeSelection").val()
+            this.client.ParentClientId = $("#parentClientSelection").val()
             this.$http.post('/api/config/addclient', this.client).then(response => {
                 clientApp.loadData()
                 loadingApp.loading = false
@@ -226,6 +235,7 @@ var manageClientApp = new Vue({
         updateClient: function() {
             loadingApp.loading = true
             this.client.ClientType.Name = $("#clientTypeSelection").val()
+            this.client.ParentClientId = $("#parentClientSelection").val()
             this.$http.post('/api/config/updateclient', this.client).then(response => {
                 clientApp.loadData()
                 loadingApp.loading = false

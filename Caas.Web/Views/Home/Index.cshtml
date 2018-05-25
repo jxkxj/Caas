@@ -165,6 +165,15 @@
                         <label>Client Type</label>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="input-field col s12">
+                        <select id="parentClientSelection">
+                            <option value="" disabled selected>Choose your option</option>
+                            <option v-for="client in clients" v-bind:value="client.clientId">{{client.identifier}} - {{ client.clientType.name}}</option>
+                        </select>
+                        <label>Parent</label>
+                    </div>
+                </div>
                 <div v-show="mode == 'edit'" class="row">
                     <div class="input-field col s6">
                         <input v-model="client.Created" placeholder="N/A" id="created" type="text" class="validate">
