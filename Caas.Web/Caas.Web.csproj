@@ -303,4 +303,7 @@
     <None Include="wwwroot\js\site.js" />
     <None Include="wwwroot\js\home.js" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Models\ConfigConfigAssociations.cs" />
+  </ItemGroup>
 </Project>

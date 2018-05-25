@@ -588,6 +588,140 @@ namespace Caas.Web.Apis
 
             return Ok();
         }
+
+        /// <summary>
+        /// Manages the config associations for client.
+        /// </summary>
+        /// <returns>The config associations for client.</returns>
+        /// <param name="id">Identifier.</param>
+        /// <param name="configAssociations">Config associations.</param>
+        [HttpPost]
+        [Authorize]
+        public IActionResult ManageConfigAssociationsForClient(int id, [FromBody]IEnumerable<ConfigAssociation> configAssociations)
+        {
+            if (id <= 0)
+                return BadRequest("Client id is required");
+            if (configAssociations == null)
+                return BadRequest();
+            if (configAssociations.Any(c => c.ClientId <= 0 || c.ConfigId <= 0))
+                return BadRequest("Either the client or config doesn't exist");
+            if (configAssociations.Select(c => c.ConfigId).Distinct().Count() != configAssociations.Count())
+                return BadRequest("You cannot have duplicate configs assigned");
+
+            var client = _context.Client.Include(c => c.ClientType).FirstOrDefault(c => c.ClientId == id);
+            if (client == null)
+                return BadRequest("Client does not exist");
+
+            //Remove past configurations first (DB and cache)
+            var currentConfigAssociations = _context.ConfigAssociation.AsNoTracking<ConfigAssociation>().Include(c => c.Config).Where(c => c.ClientId == client.ClientId);
+            foreach (var configAssociation in currentConfigAssociations)
+                _cache.Remove(string.Format(CacheKeys.CONFIG_IDENTIFIERTYPEKEY, client.Identifier, client.ClientType.Name, configAssociation.Config.Key));
+            _context.ConfigAssociation.RemoveRange(_context.ConfigAssociation.Where(c => c.ClientId == client.ClientId));
+
+            //Add to DB and Cache
+            foreach(var configAssociation in configAssociations)
+            {
+                var config = _context.Config.Find(configAssociation.ConfigId);
+                if (config == null)
+                    return BadRequest("Config does not exist");
+                configAssociation.Created = DateTime.UtcNow;
+                //Check default value
+                if (string.IsNullOrEmpty(configAssociation.Value))
+                    configAssociation.Value = config.Value;
+                _context.ConfigAssociation.Add(configAssociation);
+                config.Value = configAssociation.Value;
+                _cache.Set(string.Format(CacheKeys.CONFIG_IDENTIFIERTYPEKEY, client.Identifier, client.ClientType.Name, config.Key), config, DateTime.Now.AddMinutes(CacheKeys.CacheTimeout));
+            }
+            _context.SaveChanges();
+
+            return Ok();
+        }
+
+        /// <summary>
+        /// Manages the config association for config.
+        /// </summary>
+        /// <returns>The config association for config.</returns>
+        /// <param name="id">Identifier.</param>
+        /// <param name="configAssociations">Config associations.</param>
+        [HttpPost]
+        [Authorize]
+        public IActionResult ManageConfigAssociationsForConfig(int id, [FromBody]IEnumerable<ConfigAssociation> configAssociations)
+        {
+            if (id <= 0)
+                return BadRequest("Config id is required");
+            if (configAssociations == null)
+                return BadRequest();
+            if (configAssociations.Any(c => c.ClientId <= 0 || c.ConfigId <= 0))
+                return BadRequest("Either the client or config doesn't exist");
+            if (configAssociations.Select(c => c.ConfigId).Distinct().Count() != configAssociations.Count())
+                return BadRequest("You cannot have duplicate configs assigned");
+
+            var config = _context.Config.Find(id);
+            if (config == null)
+                return BadRequest("Config does not exist");
+
+            //Remove past configurations first (DB and cache)
+            var currentConfigAssociations = _context.ConfigAssociation.AsNoTracking<ConfigAssociation>().Include(c => c.Client).Include(c => c.Client.ClientType).Where(c => c.ConfigId == config.ConfigId);
+            foreach (var configAssociation in currentConfigAssociations)
+                _cache.Remove(string.Format(CacheKeys.CONFIG_IDENTIFIERTYPEKEY, configAssociation.Client.Identifier, configAssociation.Client.ClientType.Name, config.Key));
+            _context.ConfigAssociation.RemoveRange(_context.ConfigAssociation.Where(c => c.ConfigId == config.ConfigId));
+
+            //Add to DB and Cache
+            foreach (var configAssociation in configAssociations)
+            {
+                var client = _context.Client.Include(c => c.ClientType).FirstOrDefault(c => c.ClientId == configAssociation.ClientId);
+                if (client == null)
+                    return BadRequest("Client does not exist");
+                configAssociation.Created = DateTime.UtcNow;
+                //Check default value
+                if (string.IsNullOrEmpty(configAssociation.Value))
+                    configAssociation.Value = config.Value;
+                _context.ConfigAssociation.Add(configAssociation);
+                config.Value = configAssociation.Value;
+                _cache.Set(string.Format(CacheKeys.CONFIG_IDENTIFIERTYPEKEY, client.Identifier, client.ClientType.Name, config.Key), config, DateTime.Now.AddMinutes(CacheKeys.CacheTimeout));
+            }
+            _context.SaveChanges();
+
+            return Ok();
+        }
+
+        /// <summary>
+        /// Gets the config associations for client.
+        /// </summary>
+        /// <returns>The config associations for client.</returns>
+        /// <param name="id">Identifier.</param>
+        [HttpGet]
+        [Authorize]
+        public IActionResult GetConfigAssociationsForClient(int id)
+        {
+            if (id <= 0)
+                return BadRequest();
+
+            var configAssociations = _context.ConfigAssociation.Include(c => c.Config).Where(c => c.ClientId == id);
+
+            if (configAssociations?.Any() != true)
+                return NoContent();
+
+            return Ok(configAssociations.ToList());
+        }
+
+        /// <summary>
+        /// Gets the config associations for config.
+        /// </summary>
+        /// <returns>The config associations for config.</returns>
+        /// <param name="id">Identifier.</param>
+        public IActionResult GetConfigAssociationsForConfig(int id)
+        {
+            if (id <= 0)
+                return BadRequest();
+
+            var configAssociations = _context.ConfigAssociation.Include(c => c.Client).Where(c => c.ConfigId == id);
+
+            if (configAssociations?.Any() != true)
+                return NoContent();
+
+            return Ok(configAssociations.ToList());
+        }
         #endregion
     }
 }

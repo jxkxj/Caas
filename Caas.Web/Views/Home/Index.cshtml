@@ -3,8 +3,8 @@
 }
 @section Header {
     <nav>
-        <div class="nav-wrapper">
-            <a href="#" class="brand-logo">Caas Manager</a>
+        <div class="nav-wrapper indigo">
+            <a href="#" class="brand-logo" style="padding-left: 15px;">Caas Manager</a>
             <ul id="nav-mobile" class="right hide-on-med-and-down">
                 <li><a asp-controller="Account" asp-action="Logout">Log out</a></li>
             </ul>
@@ -68,7 +68,7 @@
                         <td>{{ client.updated }}</td>
                         <td>
                             <a v-on:click="editClient(client)" class="btn-floating waves-effect waves-light"><i class="material-icons">edit</i></a>
-                            <a class="btn-floating green waves-effect waves-light"><i class="material-icons">link</i></a>
+                            <a v-on:click="associateConfigs(client)" class="btn-floating green waves-effect waves-light"><i class="material-icons">link</i></a>
                             <a v-on:click="deleteClient(client.clientId)" class="btn-floating red waves-effect waves-light"><i class="material-icons">delete</i></a>
                         </td>
                     </tr>
@@ -98,7 +98,7 @@
                         <td>{{ config.updated }}</td>
                         <td>
                             <a v-on:click="editConfig(config)" class="btn-floating waves-effect waves-light"><i class="material-icons">edit</i></a>
-                            <a class="btn-floating green waves-effect waves-light"><i class="material-icons">link</i></a>
+                            <a v-on:click="associateClients(config)" class="btn-floating green waves-effect waves-light"><i class="material-icons">link</i></a>
                             <a v-on:click="deleteConfig(config.configId)" class="btn-floating red waves-effect waves-light"><i class="material-icons">delete</i></a>
                         </td>
                     </tr>
@@ -254,6 +254,74 @@
     </div>
 </div>
 
+<div id="ManageConfigAssociationsModal" class="modal modal-fixed-footer">
+    <div class="modal-content">
+        <h4 v-show="direction == 'client'">Config Associations for {{ client.identifier }}</h4>
+        <h4 v-show="direction == 'config'">Config Associations for {{ config.key }}</h4>
+        <div class="row">
+            <form class="col s12">
+                <table class="highlight responsive-table">
+                    <thead>
+                        <tr>
+                            <th v-show="direction == 'client'">Config</th>
+                            <th v-show="direction == 'config'">Client</th>
+                            <th>Value</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr v-for="(configAssociation, key, index) in configAssociations">
+                            <td v-show="direction == 'config'">
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <select onchange="manageConfigAssociationsApp.updateSelectedClient(this)" v-bind:id="'configAssociationClientSelect-' + key">
+                                            <option value="0" disabled selected>Choose a client</option>
+                                            <option v-for="client in clients" v-bind:value="client.clientId">{{ client.identifier }}</option>
+                                        </select>
+                                        <label>Client</label>
+                                    </div>
+                                </div>
+                            </td>
+                            <td v-show="direction == 'client'">
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <select onchange="manageConfigAssociationsApp.updateDefaultConfigValue(this)" v-bind:id="'configAssociationConfigSelect-' + key">
+                                            <option value="0" disabled selected>Choose a config</option>
+                                            <option v-for="config in configs" v-bind:value="config.configId">{{ config.key }}</option>
+                                        </select>
+                                        <label>Config</label>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input v-model="configAssociation.Value" placeholder="" id="value" type="text" class="validate">
+                                        <label v-bind:class="{ active: configAssociation.Value.length > 0 }" for="value">Value</label>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <a v-on:click="deleteConfigAssociation(key)" class="btn-floating red waves-effect waves-light"><i class="material-icons">delete</i></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class="center-align">
+                                <a v-on:click="addConfigAssociation()" class="waves-effect waves-light btn"><i class="material-icons right">add</i>add config association</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </form>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a v-on:click="reset()" href="#!" class="modal-action modal-close waves-effect waves-red btn-flat">Cancel</a>
+        <a v-show="direction == 'client'" v-on:click="manageConfigAssociationsForClient()" href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Update Client</a>
+        <a v-show="direction == 'config'" v-on:click="manageConfigAssociationsForConfig()" href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Update Config</a>
+    </div>
+</div>
 
 @section Scripts {
     <script src="~/js/home.js" asp-append-version="true"></script>

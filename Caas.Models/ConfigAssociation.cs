@@ -46,7 +46,7 @@ namespace Caas.Models
             set
             {
                 _configId = value;
-                if (_configId != _config.ConfigId)
+                if (_config != null && _configId != _config.ConfigId)
                     _config = null;
             }
         }
@@ -76,7 +76,7 @@ namespace Caas.Models
             set
             {
                 _clientId = value;
-                if (_clientId != _client.ClientId)
+                if (_client != null && _clientId != _client.ClientId)
                     _client = null;
             }
         }
