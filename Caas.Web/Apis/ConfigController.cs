@@ -621,7 +621,7 @@ namespace Caas.Web.Apis
             //Add to DB and Cache
             foreach(var configAssociation in configAssociations)
             {
-                var config = _context.Config.Find(configAssociation.ConfigId);
+                var config = _context.Config.AsNoTracking<Config>().FirstOrDefault(c => c.ConfigId == configAssociation.ConfigId);
                 if (config == null)
                     return BadRequest("Config does not exist");
                 configAssociation.Created = DateTime.UtcNow;
@@ -669,7 +669,7 @@ namespace Caas.Web.Apis
             //Add to DB and Cache
             foreach (var configAssociation in configAssociations)
             {
-                var client = _context.Client.Include(c => c.ClientType).FirstOrDefault(c => c.ClientId == configAssociation.ClientId);
+                var client = _context.Client.AsNoTracking<Client>().Include(c => c.ClientType).FirstOrDefault(c => c.ClientId == configAssociation.ClientId);
                 if (client == null)
                     return BadRequest("Client does not exist");
                 configAssociation.Created = DateTime.UtcNow;

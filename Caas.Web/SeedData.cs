@@ -7,8 +7,16 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Caas.Web
 {
+    /// <summary>
+    /// Seed data.
+    /// </summary>
     public static class SeedData
     {
+        /// <summary>
+        /// Initialize the specified serviceProvider.
+        /// </summary>
+        /// <returns>The initialize.</returns>
+        /// <param name="serviceProvider">Service provider.</param>
         public static async Task Initialize(IServiceProvider serviceProvider)
         {
             var adminId = await EnsureUser(serviceProvider, "admin@example.com", "Password123");

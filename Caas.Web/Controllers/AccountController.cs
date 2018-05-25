@@ -161,6 +161,14 @@ namespace Caas.Web.Controllers
             return View(model);
         }
 
+        /// <summary>
+        /// Accesses the denied.
+        /// </summary>
+        /// <returns>The denied.</returns>
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult AccessDenied() => View();
+
 		IActionResult RedirectToLocal(string returnUrl)
         {
             if (Url.IsLocalUrl(returnUrl))
