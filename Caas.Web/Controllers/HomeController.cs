@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Caas.Web.Controllers
 {
-	[Authorize]
+	[Authorize(Policy = "ValidAccount")]
     public class HomeController : Controller
     {
         public IActionResult Index()

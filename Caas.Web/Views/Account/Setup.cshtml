@@ -1,19 +1,24 @@
 ﻿@model Caas.Web.Models.LoginViewModel
 @{
-    ViewBag.Title = "Login";
+    ViewBag.Title = "Setup";
 }
 <div class="row">
-    <form asp-controller="Account" asp-action="Login" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="col s12 l6 offset-l3">
+    <form asp-controller="Account" asp-action="Setup" method="post" class="col s12 l6 offset-l3">
         <div class="card-panel hoverable">
             <div class="row">
                 <div class="center-align s12">
-                    <h3>Login to Caas</h3>
+                    <h3>Change Default Login</h3>
                 </div>
             </div>
             <div class="row">
                 <div class="input-field col s12">
                     <input id="email" asp-for="Email" type="email" class="validate">
                     <label for="email">Email</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col s12">
+                    <div asp-validation-for="Email" class="red-text"></div>
                 </div>
             </div>
             <div class="row">
@@ -24,23 +29,30 @@
             </div>
             <div class="row">
                 <div class="col s12">
-                    <p class="right">
-                        <input type="checkbox" class="filled-in" asp-for="RememberMe" id="filled-in-box" checked="checked" />
-                        <label for="filled-in-box">Remember Me</label>
-                    </p>
+                    <div asp-validation-for="Password" class="red-text"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-field col s12">
+                    <input asp-for="RetypePassword" id="verifypassword" type="password" class="validate">
+                    <label for="verifypassword">Retype Password</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col s12">
+                    <div asp-validation-for="RetypePassword" class="red-text"></div>
                 </div>
             </div>
             <div class="row">
                 <div class="col s12">
                     <button class="btn waves-effect waves-light right" type="submit" name="action">
-                        Login
+                        Update
                     </button>
                 </div>
             </div>
             <div class="row">
                 <div class="col s12">
                     <div asp-validation-summary="ModelOnly" class="red-text"></div>
-                    <div>@ViewData["Message"]</div>
                 </div>
             </div>
         </div>

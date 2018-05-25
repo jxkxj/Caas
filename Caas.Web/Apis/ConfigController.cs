@@ -222,7 +222,7 @@ namespace Caas.Web.Apis
         /// </summary>
         /// <returns>The all clients.</returns>
         [HttpGet]
-        [Authorize]
+        [Authorize(Policy = "ValidAccount")]
         public IActionResult GetAllClients() => Ok(_context.Client.Include(c => c.Parent).Include(c => c.ClientType).ToList());
 
         /// <summary>
@@ -230,7 +230,7 @@ namespace Caas.Web.Apis
         /// </summary>
         /// <returns>The all client types.</returns>
         [HttpGet]
-        [Authorize]
+        [Authorize(Policy = "ValidAccount")]
         public IActionResult GetAllClientTypes() => Ok(_context.ClientType.ToList());
 
         /// <summary>
@@ -238,7 +238,7 @@ namespace Caas.Web.Apis
         /// </summary>
         /// <returns>The last 100 check ins.</returns>
         [HttpGet]
-        [Authorize]
+        [Authorize(Policy = "ValidAccount")]
         public IActionResult GetLast100CheckIns() => Ok(_context.CheckIn.Include(c => c.Client).OrderByDescending(c => c.CheckInTime).Take(100).ToList());
 
         /// <summary>
@@ -247,7 +247,7 @@ namespace Caas.Web.Apis
         /// <returns>The client.</returns>
         /// <param name="clientId">Client identifier.</param>
         [HttpDelete]
-        [Authorize]
+        [Authorize(Policy = "ValidAccount")]
         public IActionResult DeleteClient(int clientId)
         {
             if (clientId <= 0)
@@ -277,7 +277,7 @@ namespace Caas.Web.Apis
         /// <returns>The client type.</returns>
         /// <param name="clientTypeId">Client type identifier.</param>
         [HttpDelete]
-        [Authorize]
+        [Authorize(Policy = "ValidAccount")]
         public IActionResult DeleteClientType(int clientTypeId)
         {
             if (clientTypeId <= 0)
@@ -312,7 +312,7 @@ namespace Caas.Web.Apis
         /// <returns>The config.</returns>
         /// <param name="configId">Config identifier.</param>
         [HttpDelete]
-        [Authorize]
+        [Authorize(Policy = "ValidAccount")]
         public IActionResult DeleteConfig(int configId)
         {
             if (configId <= 0)
@@ -342,7 +342,7 @@ namespace Caas.Web.Apis
         /// <returns>The client.</returns>
         /// <param name="client">Client.</param>
         [HttpPost]
-        [Authorize]
+        [Authorize(Policy = "ValidAccount")]
         public IActionResult AddClient([FromBody]Client client)
         {
             if (client == null)
@@ -381,7 +381,7 @@ namespace Caas.Web.Apis
         /// <returns>The client type.</returns>
         /// <param name="clientType">Client type.</param>
         [HttpPost]
-        [Authorize]
+        [Authorize(Policy = "ValidAccount")]
         public IActionResult AddClientType([FromBody]ClientType clientType)
         {
             if (clientType == null)
@@ -408,7 +408,7 @@ namespace Caas.Web.Apis
         /// <returns>The config.</returns>
         /// <param name="config">Config.</param>
         [HttpPost]
-        [Authorize]
+        [Authorize(Policy = "ValidAccount")]
         public IActionResult AddConfig([FromBody]Config config)
         {
             if (config == null)
@@ -441,7 +441,7 @@ namespace Caas.Web.Apis
         /// <returns>The client.</returns>
         /// <param name="client">Client.</param>
         [HttpPost]
-        [Authorize]
+        [Authorize(Policy = "ValidAccount")]
         public IActionResult UpdateClient([FromBody]Client client)
         {
             if (client == null)
@@ -493,7 +493,7 @@ namespace Caas.Web.Apis
         /// <returns>The client type.</returns>
         /// <param name="clientType">Client type.</param>
         [HttpPost]
-        [Authorize]
+        [Authorize(Policy = "ValidAccount")]
         public IActionResult UpdateClientType([FromBody]ClientType clientType)
         {
             if (clientType == null)
@@ -547,7 +547,7 @@ namespace Caas.Web.Apis
         /// <returns>The config.</returns>
         /// <param name="config">Config.</param>
         [HttpPost]
-        [Authorize]
+        [Authorize(Policy = "ValidAccount")]
         public IActionResult UpdateConfig([FromBody]Config config)
         {
             if (config == null)
@@ -596,7 +596,7 @@ namespace Caas.Web.Apis
         /// <param name="id">Identifier.</param>
         /// <param name="configAssociations">Config associations.</param>
         [HttpPost]
-        [Authorize]
+        [Authorize(Policy = "ValidAccount")]
         public IActionResult ManageConfigAssociationsForClient(int id, [FromBody]IEnumerable<ConfigAssociation> configAssociations)
         {
             if (id <= 0)
@@ -644,7 +644,7 @@ namespace Caas.Web.Apis
         /// <param name="id">Identifier.</param>
         /// <param name="configAssociations">Config associations.</param>
         [HttpPost]
-        [Authorize]
+        [Authorize(Policy = "ValidAccount")]
         public IActionResult ManageConfigAssociationsForConfig(int id, [FromBody]IEnumerable<ConfigAssociation> configAssociations)
         {
             if (id <= 0)
@@ -691,7 +691,7 @@ namespace Caas.Web.Apis
         /// <returns>The config associations for client.</returns>
         /// <param name="id">Identifier.</param>
         [HttpGet]
-        [Authorize]
+        [Authorize(Policy = "ValidAccount")]
         public IActionResult GetConfigAssociationsForClient(int id)
         {
             if (id <= 0)
@@ -710,6 +710,8 @@ namespace Caas.Web.Apis
         /// </summary>
         /// <returns>The config associations for config.</returns>
         /// <param name="id">Identifier.</param>
+        [HttpGet]
+        [Authorize(Policy = "ValidAccount")]
         public IActionResult GetConfigAssociationsForConfig(int id)
         {
             if (id <= 0)

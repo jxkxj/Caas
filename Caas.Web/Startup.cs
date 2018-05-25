@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Security.Claims;
+using System.Linq;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -55,6 +57,14 @@ namespace Caas.Web
 			services.AddIdentity<ApplicationUser, IdentityRole>()
 					.AddEntityFrameworkStores<DatabaseContext>()
 			        .AddDefaultTokenProviders();
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("ValidAccount", policy =>
+                {
+                    policy.RequireAuthenticatedUser();
+                    policy.RequireClaim("ValidAccount", "true");
+                });
+            });
 
 			services.Configure<IdentityOptions>(options =>
 			{

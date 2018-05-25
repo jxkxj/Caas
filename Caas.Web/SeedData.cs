@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -16,8 +17,9 @@ namespace Caas.Web
         static async Task<string> EnsureUser(IServiceProvider serviceProvider, string email, string password)
         {
             var userManager = serviceProvider.GetService<UserManager<ApplicationUser>>();
+            var databaseManager = serviceProvider.GetService<DatabaseContext>();
 
-            var user = await userManager.FindByEmailAsync(email);
+            ApplicationUser user = databaseManager.Users.FirstOrDefault();
             if(user == null)
             {
                 user = new ApplicationUser()
