@@ -232,6 +232,10 @@ var manageClientApp = new Vue({
                 this.resetClient()
             })
         },
+        deleteParentClient: function() {
+            $("#parentClientSelection").val('')
+            $("#parentClientSelection").material_select('')
+        },
         updateClient: function() {
             loadingApp.loading = true
             this.client.ClientType.Name = $("#clientTypeSelection").val()

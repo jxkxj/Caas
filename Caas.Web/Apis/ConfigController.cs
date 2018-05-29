@@ -83,6 +83,63 @@ namespace Caas.Web.Apis
             return true;
         }
 
+        private Config GetConfigFromParent(int clientId, string key)
+        {
+            var client = _context.Client.Include(c => c.ClientType).FirstOrDefault(c => c.ClientId == clientId);
+
+            if (client == null)
+                return null;
+
+            //look in cache first
+            if (_cache.TryGetValue<Config>(string.Format(CacheKeys.CONFIG_IDENTIFIERTYPEKEY, client.Identifier, client.ClientType.Name, key), out Config cacheConfig))
+                return cacheConfig;
+
+            var configAssociation = _context.ConfigAssociation.Include(c => c.Config).Where(c => c.ClientId == client.ClientId && c.Config.Key == key).FirstOrDefault();
+            if (configAssociation == null && client.HasParent)
+            {
+                var config = GetConfigFromParent(client.ParentClientId.Value, key);
+                if (config == null)
+                    return null;
+                return config;
+            }
+            if (configAssociation == null && !client.HasParent)
+                return null;
+            else
+            {
+                var config = configAssociation.Config;
+                if (!string.IsNullOrEmpty(configAssociation.Value))
+                    config.Value = configAssociation.Value;
+                _cache.Set(string.Format(CacheKeys.CONFIG_IDENTIFIERTYPEKEY, client.Identifier, client.ClientType.Name, key), config, DateTime.Now.AddMinutes(CacheKeys.CacheTimeout));
+                return config;
+            }
+        }
+
+        private void GetConfigsFromParent(int clientId, ref IList<Config> currentList)
+        {
+            var client = _context.Client.Include(c => c.ClientType).FirstOrDefault(c => c.ClientId == clientId);
+
+            if (client == null)
+                return;
+
+            var configAssociations = _context.ConfigAssociation.Include(c => c.Config).Where(c => c.ClientId == client.ClientId);
+
+            foreach (var configAssociation in configAssociations)
+            {
+                //If there aren't any configs with the same id already in the list, add it
+                if (!currentList.Any(c => c.ConfigId == configAssociation.ConfigId))
+                {
+                    var config = configAssociation.Config;
+                    //If association has a different value, use that instead of the default
+                    if (!string.IsNullOrEmpty(configAssociation.Value))
+                        config.Value = configAssociation.Value;
+                    currentList.Add(config);
+                }
+            }
+
+            if (client.HasParent)
+                GetConfigsFromParent(client.ParentClientId.Value, ref currentList);
+        }
+
         /// <summary>
         /// Get a specific <see cref="Config"/> by <see cref="Config.Key"/> for a <see cref="Client"/>
         /// </summary>
@@ -112,7 +169,14 @@ namespace Caas.Web.Apis
                 return NoContent();
 
             var configAssociation = _context.ConfigAssociation.Include(c => c.Config).Where(c => c.ClientId == client.ClientId && c.Config.Key == key).FirstOrDefault();
-            if (configAssociation == null)
+            if (configAssociation == null && client.HasParent)
+            {
+                var config = GetConfigFromParent(client.ParentClientId.Value, key);
+                if (config == null)
+                    return NoContent();
+                return Ok(config);
+            }
+            if(configAssociation == null && !client.HasParent)
                 return NoContent();
             else
             {
@@ -179,7 +243,7 @@ namespace Caas.Web.Apis
 
             var configAssociations = _context.ConfigAssociation.Include(c => c.Config).Where(c => c.ClientId == client.ClientId);
 
-            var configs = new List<Config>();
+            IList<Config> configs = new List<Config>();
             foreach(var configAssociation in configAssociations)
             {
                 var config = configAssociation.Config;
@@ -188,6 +252,10 @@ namespace Caas.Web.Apis
                     config.Value = configAssociation.Value;
                 configs.Add(config);
             }
+
+            //get from parents if we have one
+            if (client.HasParent)
+                GetConfigsFromParent(client.ParentClientId.Value, ref configs);
 
             return Ok(configs);
         }
@@ -452,6 +520,8 @@ namespace Caas.Web.Apis
                 return BadRequest("Must be attached to a client type");
             if (client.ClientId <= 0)
                 return BadRequest("Client isn't created yet");
+            if (client.ParentClientId.HasValue && client.ClientId == client.ParentClientId.Value)
+                return BadRequest("Client can't be a parent of itself");
 
             var clientType = _context.ClientType.FirstOrDefault(c => c.Name == client.ClientType.Name);
             if (clientType == null)
@@ -474,6 +544,7 @@ namespace Caas.Web.Apis
             _context.SaveChanges();
 
             //update to cache
+            _cache.Remove(string.Format(CacheKeys.CLIENT_KEY, origClient.Identifier, origClient.ClientType.Name));
             _cache.Set(string.Format(CacheKeys.CLIENT_KEY, client.Identifier, clientType.Name), client, DateTime.Now.AddMinutes(CacheKeys.CacheTimeout));
             var configAssociations = _context.ConfigAssociation.Include(c => c.Config).Where(c => c.ClientId == client.ClientId);
             foreach(var configAssociation in configAssociations)

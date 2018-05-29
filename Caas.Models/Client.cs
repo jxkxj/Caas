@@ -92,6 +92,6 @@ namespace Caas.Models
         /// <summary>
         /// Get or set if this top level <see cref="Client"/>
         /// </summary>
-        public bool IsParent => Parent != null;
+        public bool HasParent => _parentClientId.HasValue;
     }
 }
