@@ -21,6 +21,8 @@ var clientApp = new Vue({
                 this.clients = response.body
                 manageConfigAssociationsApp.clients = response.body
                 manageClientApp.clients = response.body
+            }, response  => {
+                Materialize.toast('Something went wrong getting all clients', 8000)
             })
         },
         editClient: function(client) {
@@ -56,6 +58,8 @@ var clientApp = new Vue({
                 this.$http.delete('/api/config/deleteclient?clientId=' + clientId).then(response => {
                     this.loadData()  
                     loadingApp.loading = false
+                }, response => {
+                    Materialize.toast('Something went wrong deleting the client', 8000)
                 })
             }
         }
@@ -75,6 +79,8 @@ var clientTypeApp = new Vue({
             this.$http.get('/api/config/getallclienttypes').then(response => {
                 this.clientTypes = response.body
                 manageClientApp.clientTypes = response.body
+            }, response => {
+                Materialize.toast('Something went wrong getting all client types', 8000)
             })
         },
         editClientType: function(clientType) {
@@ -94,6 +100,8 @@ var clientTypeApp = new Vue({
                 this.$http.delete('/api/config/deleteclienttype?clientTypeId=' + clientTypeId).then(response => {
                     this.loadData()  
                     loadingApp.loading = false
+                }, response => {
+                    Materialize.toast('Something went wrong deleting the client type', 8000)
                 })
             }
         }
@@ -113,6 +121,8 @@ var configApp = new Vue({
             this.$http.get('/api/config/getallconfigs').then(response => {
                 this.configs = response.body
                 manageConfigAssociationsApp.configs = response.body
+            }, response => {
+                Materialize.toast('Something went wrong getting all configs', 8000)
             })
         },
         editConfig: function(config) {
@@ -140,6 +150,8 @@ var configApp = new Vue({
                 this.$http.delete('/api/config/deleteconfig?configId=' + configId).then(response => {
                     this.loadData()  
                     loadingApp.loading = false
+                }, response => {
+                    Materialize.toast('Something went wrong deleting the config', 8000)
                 })
             }
         }
@@ -158,6 +170,8 @@ var checkInApp = new Vue({
         loadData: function() {
             this.$http.get('/api/config/getlast100checkins').then(response => {
                 this.checkIns = response.body
+            }, response => {
+                Materialize.toast('Something went wrong getting the past 100 check ins', 8000)
             })
         }
     },
@@ -230,6 +244,10 @@ var manageClientApp = new Vue({
                 clientApp.loadData()
                 loadingApp.loading = false
                 this.resetClient()
+            }, response => {
+                Materialize.toast('Something went wrong adding the new client', 8000)
+                loadingApp.loading = false
+                this.resetClient()
             })
         },
         deleteParentClient: function() {
@@ -242,6 +260,10 @@ var manageClientApp = new Vue({
             this.client.ParentClientId = $("#parentClientSelection").val()
             this.$http.post('/api/config/updateclient', this.client).then(response => {
                 clientApp.loadData()
+                loadingApp.loading = false
+                this.resetClient()
+            }, response => {
+                Materialize.toast('Something went wrong updating the client', 8000)
                 loadingApp.loading = false
                 this.resetClient()
             })
@@ -269,12 +291,20 @@ var manageClientTypeApp = new Vue({
                 clientTypeApp.loadData()
                 loadingApp.loading = false
                 this.resetClientType()
+            }, response => {
+                Materialize.toast('Something went wrong adding a new client type', 8000)
+                loadingApp.loading = false
+                this.resetClientType()
             })
         },
         updateClientType: function() {
             loadingApp.loading = true
             this.$http.post('/api/config/updateclienttype', this.clientType).then(response => {
                 clientTypeApp.loadData()
+                loadingApp.loading = false
+                this.resetClientType()
+            }, response => {
+                Materialize.toast('Something went wrong updating the client type', 8000)
                 loadingApp.loading = false
                 this.resetClientType()
             })
@@ -304,12 +334,20 @@ var manageConfigApp = new Vue({
                 configApp.loadData()
                 loadingApp.loading = false
                 this.resetConfig()
+            }, response => {
+                Materialize.toast('Something went wrong adding a new config', 8000)
+                loadingApp.loading = false
+                this.resetConfig()
             })
         },
         updateConfig: function() {
             loadingApp.loading = true
             this.$http.post('/api/config/updateconfig/', this.config).then(response => {
                 configApp.loadData()
+                loadingApp.loading = false
+                this.resetConfig()
+            }, response => {
+                Materialize.toast('Something went wrong updating the config', 8000)
                 loadingApp.loading = false
                 this.resetConfig()
             })
@@ -349,6 +387,9 @@ var manageConfigAssociationsApp = new Vue({
                         this.initSelect("#configAssociationConfigSelect-" + index, configAssociation.ConfigId)
                     }
                     loadingApp.loading = false
+                }, response => {
+                    Materialize.toast('Something went wrong getting config associations for client', 8000)
+                    loadingApp.loading = false
                 })
             } else if(this.direction == 'config') {
                 this.$http.get('/api/config/getconfigassociationsforconfig/' + this.config.configId).then(response => {
@@ -365,6 +406,9 @@ var manageConfigAssociationsApp = new Vue({
 
                     }
                     loadingApp.loading = false
+                }, response => {
+                    Materialize.toast('Something went wrong getting config assoications for config', 8000)
+                    loadingApp.loading = false
                 })
             }
         },
@@ -379,11 +423,19 @@ var manageConfigAssociationsApp = new Vue({
             this.$http.post('/api/config/manageconfigassociationsforclient/' + this.client.clientId, this.configAssociations).then(response => {
                 loadingApp.loading = false
                 this.reset()
+            }, response => {
+                Materialize.toast('Something went wrong managing config associations for client', 8000)
+                loadingApp.loading = false
+                this.reset()
             })
         },
         manageConfigAssociationsForConfig: function() {
             loadingApp.loading = true
             this.$http.post('/api/config/manageconfigassociationsforconfig/' + this.config.configId, this.configAssociations).then(response => {
+                loadingApp.loading = false
+                this.reset()
+            }, response => {
+                Materialize.toast('Something went wrong managing config associations for config', 8000)
                 loadingApp.loading = false
                 this.reset()
             })
