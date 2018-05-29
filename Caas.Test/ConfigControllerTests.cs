@@ -77,6 +77,13 @@ namespace Caas.Test
 					ClientType = clientType,
 					Created = DateTime.UtcNow
 				}).Entity;
+                var client2 = context.Client.Add(new Models.Client()
+                {
+                    Identifier = "UITestRunnerChild",
+                    ClientType = clientType,
+                    Created = DateTime.UtcNow,
+                    ParentClientId = client.ClientId
+                });
 				context.ConfigAssociation.Add(new ConfigAssociation()
 				{
 					Client = client,
@@ -124,7 +131,7 @@ namespace Caas.Test
 			connection.Close();
 
 			return lastCheckIn;
-		}      
+		}
 
         [TestMethod]
         public async Task CheckIn()
@@ -186,6 +193,24 @@ namespace Caas.Test
 			var configs = await CaasManager.GetAllConfigsAsync();
 
 			Assert.AreEqual(3, configs.Count());
-		}      
+		}  
+
+        [TestMethod]
+        public async Task GetConfigFromClientWithParent()
+        {
+            var config = await CaasManager.GetConfigForClientAsync("UITestRunnerChild", "UITest", "Config2");
+
+            Assert.AreEqual(2, config.ConfigId);
+            Assert.AreEqual("Config2", config.Key);
+            Assert.AreEqual("Value2", config.Value);
+        }
+
+        [TestMethod]
+        public async Task GetAllConfigsForClientWithParent()
+        {
+            var configs = await CaasManager.GetAllConfigsForClientAsync("UITestRunnerChild", "UITest");
+
+            Assert.AreEqual(2, configs.Count());
+        }
     }
 }
