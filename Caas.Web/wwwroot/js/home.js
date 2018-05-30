@@ -1,4 +1,8 @@
-﻿//Initialize
+﻿/*exported
+    checkInApp, addItemsApp,
+*/
+
+//Initialize
 (function ($) {
     $(function () {
 

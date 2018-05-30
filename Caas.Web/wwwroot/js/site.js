@@ -1,4 +1,6 @@
-﻿var loadingApp = new Vue({
+﻿/*exported loadingApp*/
+
+var loadingApp = new Vue({
     el: '#loading',
     data: {
         loading: false

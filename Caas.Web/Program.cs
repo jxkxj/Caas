@@ -27,7 +27,10 @@ namespace Caas.Web
                 {
                     context.Database.Migrate();
                 }
-                catch(Exception) { /* Migrations might have an error for some, because I was learning EF and did it wrong */ }
+                catch(Exception)
+                {
+                    /* Migrations might have an error for some, because I was learning EF and did it wrong */
+                }
 
                 try
                 {
