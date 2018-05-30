@@ -4,3 +4,7 @@
         loading: false
     }
 })
+
+$(document).on('ready', function () {
+    $(".container").css('opacity', '1')
+})
