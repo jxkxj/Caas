@@ -47,7 +47,7 @@ namespace Caas.Models
             set
             {
                 _clientTypeId = value;
-                if (_clientTypeId != _clientType.ClientTypeId)
+                if (_clientType != null && _clientTypeId != _clientType.ClientTypeId)
                     _clientType = null;
             }
         }
@@ -85,13 +85,13 @@ namespace Caas.Models
             set
             {
                 _parentClientId = value;
-                if (_parentClientId != Parent?.ClientId)
+                if (_parent != null && _parentClientId != _parent.ClientId)
                     _parent = null;
             }
         }
         /// <summary>
         /// Get or set if this top level <see cref="Client"/>
         /// </summary>
-        public bool IsParent => Parent != null;
+        public bool HasParent => _parentClientId.HasValue;
     }
 }

@@ -12,7 +12,7 @@ namespace Caas.Client
 	/// <summary>
 	/// Manages all calls back to Caas so all you have to worry
 	/// about is handling the <see cref="Config"/>
-	/// </summary>   
+	/// </summary>
 	public static class CaasManager
 	{
 		private static bool isInitialized;
@@ -120,7 +120,7 @@ namespace Caas.Client
         /// </summary>
         /// <param name="identifier">The <see cref="Models.Client.Identifier"/></param>
         /// <param name="type">The <see cref="ClientType.Name"/></param>
-		/// <param name="extraData">Extra data you want stored with the <see cref=" Models.CheckIn"/></param>
+		/// <param name="extraData">Extra data you want stored with the <see cref="Models.CheckIn"/></param>
         /// <returns></returns>
         public static async Task CheckInClient<T>(string identifier, string type, T extraData)
         {

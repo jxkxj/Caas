@@ -1,7 +1,10 @@
 ﻿using System;
 #if NETCOREAPP2_0
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 #endif
+
+using Newtonsoft.Json;
 
 namespace Caas.Models
 {
@@ -43,7 +46,7 @@ namespace Caas.Models
             set
             {
                 _configId = value;
-                if (_configId != _config.ConfigId)
+                if (_config != null && _configId != _config.ConfigId)
                     _config = null;
             }
         }
@@ -73,7 +76,7 @@ namespace Caas.Models
             set
             {
                 _clientId = value;
-                if (_clientId != _client.ClientId)
+                if (_client != null && _clientId != _client.ClientId)
                     _client = null;
             }
         }
@@ -84,5 +87,37 @@ namespace Caas.Models
         [Required]
 #endif
         public DateTime Created { get; set; }
+
+        /// <summary>
+        /// Gets or sets the value.
+        /// </summary>
+        /// <value>The value.</value>
+        public string Value { get; set; }
+    }
+
+    public class ConfigAssociation<T> : ConfigAssociation
+    {
+        /// <summary>
+        /// Get or set the <see cref="Value"/> converted to <see cref="T"/>
+        /// </summary>
+        [JsonIgnore]
+#if NETCOREAPP2_0
+        [NotMapped]
+#endif
+        public T ConvertedValue
+        {
+            get
+            {
+                try
+                {
+                    return JsonConvert.DeserializeObject<T>(Value);
+                }
+                catch (Exception)
+                {
+                    return default(T);
+                }
+            }
+            set => Value = (value == null) ? null : JsonConvert.SerializeObject(value);
+        }
     }
 }

@@ -1,0 +1,340 @@
+﻿@{
+    ViewBag.Title = "Home";
+}
+@section Header {
+    <nav>
+        <div class="nav-wrapper indigo">
+            <a href="#" class="brand-logo" style="padding-left: 15px;">Caas Manager</a>
+            <ul id="nav-mobile" class="right hide-on-med-and-down">
+                <li><a asp-controller="Account" asp-action="Logout">Log out</a></li>
+            </ul>
+        </div>
+    </nav>
+}
+<div style="margin-top: 50px;" class="row">
+    <div class="col s12">
+        <ul id="tabs-swipe-demo" class="tabs tabs-fixed-width">
+            <li class="tab col s3"><a href="#swipe-client-types">Client Types</a></li>
+            <li class="tab col s3"><a href="#swipe-clients">Clients</a></li>
+            <li class="tab col s3"><a href="#swipe-configs">Configs</a></li>
+            <li class="tab col s3"><a href="#swipe-check-ins">Check Ins</a></li>
+        </ul>
+        <div id="swipe-client-types" class="col s12">
+            <table class="bordered highlight responsive-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Created</th>
+                        <th>Updated</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr v-for="clientType in clientTypes">
+                        <td>{{ clientType.name }}</td>
+                        <td>{{ clientType.created }}</td>
+                        <td>{{ clientType.updated }}</td>
+                        <td>
+                            <a v-on:click="editClientType(clientType)" class="btn-floating waves-effect waves-light"><i class="material-icons">edit</i></a>
+                            <a v-on:click="deleteClientType(clientType.clientTypeId)" class="btn-floating red waves-effect waves-light"><i class="material-icons">delete</i></a>
+                        </td>
+                    </tr>
+                    <tr v-show="clientTypes.length == 0">
+                        <td colspan="4" class="center-align">No Results</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div id="swipe-clients" class="col s12">
+            <table class="bordered highlight responsive-table">
+                <thead>
+                    <tr>
+                        <th>Identifier</th>
+                        <th>Client Type</th>
+                        <th>Parent Client</th>
+                        <th>Created</th>
+                        <th>Updated</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr v-for="client in clients">
+                        <td>{{ client.identifier }}</td>
+                        <td>{{ client.clientType.name }}</td>
+                        <td>{{ (client.parent) ? client.parent.identifier : 'N/A' }}</td>
+                        <td>{{ client.created }}</td>
+                        <td>{{ client.updated }}</td>
+                        <td>
+                            <a v-on:click="editClient(client)" class="btn-floating waves-effect waves-light"><i class="material-icons">edit</i></a>
+                            <a v-on:click="associateConfigs(client)" class="btn-floating green waves-effect waves-light"><i class="material-icons">link</i></a>
+                            <a v-on:click="deleteClient(client.clientId)" class="btn-floating red waves-effect waves-light"><i class="material-icons">delete</i></a>
+                        </td>
+                    </tr>
+                    <tr v-show="clients.length == 0">
+                        <td colspan="6" class="center-align">No Results</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div id="swipe-configs" class="col s12">
+            <table class="bordered highlight responsive-table">
+                <thead>
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                        <th>Created</th>
+                        <th>Updated</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr v-for="config in configs">
+                        <td>{{ config.key }}</td>
+                        <td>{{ config.value }}</td>
+                        <td>{{ config.created }}</td>
+                        <td>{{ config.updated }}</td>
+                        <td>
+                            <a v-on:click="editConfig(config)" class="btn-floating waves-effect waves-light"><i class="material-icons">edit</i></a>
+                            <a v-on:click="associateClients(config)" class="btn-floating green waves-effect waves-light"><i class="material-icons">link</i></a>
+                            <a v-on:click="deleteConfig(config.configId)" class="btn-floating red waves-effect waves-light"><i class="material-icons">delete</i></a>
+                        </td>
+                    </tr>
+                    <tr v-show="configs.length == 0">
+                        <td colspan="5" class="center-align">No Results</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div id="swipe-check-ins" class="col s12">
+            <table class="bordered highlight responsive-table">
+                <thead>
+                    <tr>
+                        <th>Identifier</th>
+                        <th>Check In Time</th>
+                        <th>Extra Data</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr v-for="checkIn in checkIns">
+                        <td>{{ checkIn.client.identifier }}</td>
+                        <td>{{ checkIn.checkInTime }}</td>
+                        <td>{{ checkIn.extraData }}</td>
+                    </tr>
+                    <tr v-show="checkIns.length == 0">
+                        <td colspan="3" class="center-align">No Results</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="add-items" class="fixed-action-btn">
+    <a class="btn-floating btn-large red">
+        <i class="large material-icons">add</i>
+    </a>
+    <ul>
+        <li><a v-on:click="addClientType()" class="btn-floating yellow darken-1 tooltipped" data-position="left" data-delay="50" data-tooltip="add a client type"><i class="material-icons">filter_none</i></a></li>
+        <li><a v-on:click="addClient()" class="btn-floating red tooltipped" data-position="left" data-delay="50" data-tooltip="add a client"><i class="material-icons">devices_other</i></a></li>
+        <li><a v-on:click="addConfig()" class="btn-floating green tooltipped" data-position="left" data-delay="50" data-tooltip="add a config"><i class="material-icons">settings</i></a></li>
+    </ul>
+</div>
+
+<div id="ManageClientModal" class="modal">
+    <div class="modal-content">
+        <h4 v-show="mode == 'create'">Add Client</h4>
+        <h4 v-show="mode == 'edit'">Edit Client</h4>
+        <div class="row">
+            <form class="col s12">
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input v-model="client.Identifier" placeholder="Identifier" id="identifier" type="text" class="validate">
+                        <label v-bind:class="{ active: client.Identifier.length > 0 }" for="identifier">Identifier</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s12">
+                        <select id="clientTypeSelection">
+                            <option value="" disabled selected>Choose your option</option>
+                            <option v-for="clientType in clientTypes" v-bind:value="clientType.name">{{clientType.name}}</option>
+                        </select>
+                        <label>Client Type</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s10">
+                        <select id="parentClientSelection">
+                            <option value="" disabled selected>Choose your option</option>
+                            <option v-for="client in clients" v-bind:value="client.clientId">{{client.identifier}} - {{ client.clientType.name}}</option>
+                        </select>
+                        <label>Parent</label>
+                    </div>
+                    <div class="input-field col s2 center-align">
+                        <a v-on:click="deleteParentClient()" class="btn-floating red waves-effect waves-light"><i class="material-icons">delete</i></a>
+                    </div>
+                </div>
+                <div v-show="mode == 'edit'" class="row">
+                    <div class="input-field col s6">
+                        <input v-model="client.Created" placeholder="N/A" id="created" type="text" class="validate">
+                        <label class="active" for="created">Created</label>
+                    </div>
+                    <div class="input-field col s6">
+                        <input v-model="client.Updated" placeholder="N/A" id="updated" type="text" class="validate">
+                        <label class="active" for="updated">Updated</label>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a v-on:click="resetClient()" href="#!" class="modal-action modal-close waves-effect waves-red btn-flat">Cancel</a>
+        <a v-show="mode == 'create'" v-on:click="addClient()" href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Add</a>
+        <a v-show="mode == 'edit'" v-on:click="updateClient()" href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Update</a>
+    </div>
+</div>
+
+<div id="ManageClientTypeModal" class="modal">
+    <div class="modal-content">
+        <h4 v-show="mode == 'create'">Add Client Type</h4>
+        <h4 v-show="mode == 'edit'">Edit Client Type</h4>
+        <div class="row">
+            <form class="col s12">
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input v-model="clientType.Name" id="name" type="text" class="validate">
+                        <label v-bind:class="{ active: clientType.Name.length > 0 }" for="name">Name</label>
+                    </div>
+                </div>
+                <div v-show="mode == 'edit'" class="row">
+                    <div class="input-field col s6">
+                        <input v-model="clientType.Created" placeholder="N/A" id="created" type="text" class="validate">
+                        <label class="active" for="created">Created</label>
+                    </div>
+                    <div class="input-field col s6">
+                        <input v-model="clientType.Updated" placeholder="N/A" id="updated" type="text" class="validate">
+                        <label class="active" for="updated">Updated</label>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a v-on:click="resetClientType()" href="#!" class="modal-action modal-close waves-effect waves-red btn-flat">Cancel</a>
+        <a v-show="mode == 'create'" v-on:click="addClientType()" href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Add</a>
+        <a v-show="mode == 'edit'" v-on:click="updateClientType()" href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Update</a>
+    </div>
+</div>
+
+<div id="ManageConfigModal" class="modal">
+    <div class="modal-content">
+        <h4>Add Config</h4>
+        <div class="row">
+            <form class="col s12">
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input v-model="config.Key" placeholder="Key" id="key" type="text" class="validate">
+                        <label v-bind:class="{ active: config.Key.length > 0 }" for="key">Key</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input v-model="config.Value" id="value" type="text" class="validate">
+                        <label v-bind:class="{ active: config.Value.length > 0 }" for="value">Value</label>
+                    </div>
+                </div>
+                <div v-show="mode == 'edit'" class="row">
+                    <div class="input-field col s6">
+                        <input v-model="config.Created" placeholder="N/A" id="created" type="text" class="validate">
+                        <label class="active" for="created">Created</label>
+                    </div>
+                    <div class="input-field col s6">
+                        <input v-model="config.Updated" placeholder="N/A" id="updated" type="text" class="validate">
+                        <label class="active" for="updated">Updated</label>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a v-on:click="resetConfig()" href="#!" class="modal-action modal-close waves-effect waves-red btn-flat">Cancel</a>
+        <a v-show="mode == 'edit'" v-on:click="updateConfig()" href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Update</a>
+        <a v-show="mode == 'create'" v-on:click="addConfig()" href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Add</a>
+    </div>
+</div>
+
+<div id="ManageConfigAssociationsModal" class="modal modal-fixed-footer">
+    <div class="modal-content">
+        <h4 v-show="direction == 'client'">Config Associations for {{ client.identifier }}</h4>
+        <h4 v-show="direction == 'config'">Config Associations for {{ config.key }}</h4>
+        <div class="row">
+            <form class="col s12">
+                <table class="highlight responsive-table">
+                    <thead>
+                        <tr>
+                            <th v-show="direction == 'client'">Config</th>
+                            <th v-show="direction == 'config'">Client</th>
+                            <th>Value</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr v-for="(configAssociation, key, index) in configAssociations">
+                            <td v-show="direction == 'config'">
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <select onchange="manageConfigAssociationsApp.updateSelectedClient(this)" v-bind:id="'configAssociationClientSelect-' + key">
+                                            <option value="0" disabled selected>Choose a client</option>
+                                            <option v-for="client in clients" v-bind:value="client.clientId">{{ client.identifier }}</option>
+                                        </select>
+                                        <label>Client</label>
+                                    </div>
+                                </div>
+                            </td>
+                            <td v-show="direction == 'client'">
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <select onchange="manageConfigAssociationsApp.updateDefaultConfigValue(this)" v-bind:id="'configAssociationConfigSelect-' + key">
+                                            <option value="0" disabled selected>Choose a config</option>
+                                            <option v-for="config in configs" v-bind:value="config.configId">{{ config.key }}</option>
+                                        </select>
+                                        <label>Config</label>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input v-model="configAssociation.Value" placeholder="" id="value" type="text" class="validate">
+                                        <label v-bind:class="{ active: configAssociation.Value.length > 0 }" for="value">Value</label>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <a v-on:click="deleteConfigAssociation(key)" class="btn-floating red waves-effect waves-light"><i class="material-icons">delete</i></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class="center-align">
+                                <a v-on:click="addConfigAssociation()" class="waves-effect waves-light btn"><i class="material-icons right">add</i>add config association</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </form>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a v-on:click="reset()" href="#!" class="modal-action modal-close waves-effect waves-red btn-flat">Cancel</a>
+        <a v-show="direction == 'client'" v-on:click="manageConfigAssociationsForClient()" href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Update Client</a>
+        <a v-show="direction == 'config'" v-on:click="manageConfigAssociationsForConfig()" href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Update Config</a>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/home.js" asp-append-version="true"></script>
+}
