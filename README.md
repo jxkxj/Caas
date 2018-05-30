@@ -143,7 +143,7 @@ You have your clients manually check in the to the server so you know the last t
  * Verify the last time the device checked in or got a config
  * Automatically create new clients so you can set new configs after there first check in (see ```CAAS_CREATECLIENTS``` enviroment variable)
 
-A client check in occurs with the following 3 requests
+A client check in occurs with the following 4 requests
 
 ```c#
 Task<Config> GetConfigForClientAsync(string identifier, string type, string key);
@@ -151,11 +151,27 @@ Task<Config> GetConfigForClientAsync(string identifier, string type, string key)
 Task<IEnumerable<Config>> GetAllConfigsForClientAsync(string identifier, string type);
 
 Task CheckInClient(string identifier, string type);
+
+Task CheckInClient<T>(string identifier, string type, T extraData);
 ```
 
 Check-ins are stored with the client id and the datetime in UTC.
 
 ## Caas.Web
+
+**Online Portal**
+
+Starting with version 2.0, you can now manager you clients, configs, and check-ins online!
+
+Simple visit the site (most cases, http://localhost:5000) and you will be brought to a login.  The default login is:
+
+***Username***: admin@example.com
+
+***Password***: Password123
+
+After logging in, you will be asked to change the email and password.  Currently, you can only have 1 account, but this may change later on.
+
+After logging in, you will be brough to the screen shown below.  Here is where you can manage client types, clients, configs, and watch check-ins.
 
 **Enviroment Variables**
 
